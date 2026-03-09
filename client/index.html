@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+     <meta charset="UTF-8" />
+     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+     <title>client</title>
+     <script>
+        console.log('index.html loaded');
+        // Test for white page issue
+        setTimeout(() => {
+            const root = document.getElementById('root');
+            if (!root || !root.innerHTML.trim()) {
+                console.warn('Root element issue detected');
+                document.body.innerHTML = '<div style="font-family: Arial; text-align: center; padding: 2rem; background: #fef2f2;"><h2>⚠️ Root Element Issue</h2><p>React root element not found or not rendering</p><button onclick="location.reload()">Reload</button></div>';
+            }
+        }, 5000);
+     </script>
+  </head>
+  <body>
+     <div id="root"></div>
+     <script type="module" src="/src/main.jsx"></script>
+     <script>
+        console.log('index.html: Scripts loaded');
+     </script>
+  </body>
+</html>
