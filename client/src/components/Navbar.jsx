@@ -87,8 +87,8 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* User Actions */}
-          <div className="flex items-center space-x-4">
+          {/* User Actions - Desktop only */}
+          <div className="hidden md:flex items-center space-x-4">
             {isAuthenticated && user?.role === 'admin' ? (
               <Link
                 to="/admin/dashboard"
@@ -172,7 +172,23 @@ const Navbar = () => {
             )}
           </Link>
           
-          {!isAuthenticated && (
+          {/* Admin Links - Mobile */}
+          {isAuthenticated && user?.role === 'admin' ? (
+            <>
+              <Link
+                to="/admin/dashboard"
+                className={`block px-2 py-1.5 rounded text-sm font-medium hover:bg-green-600 ${isActive('/admin/dashboard') ? 'bg-green-600' : ''}`}
+              >
+                Admin Dashboard
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="block w-full text-left px-2 py-1.5 rounded text-sm font-medium hover:bg-green-600"
+              >
+                Logout
+              </button>
+            </>
+          ) : !isAuthenticated && (
             <Link
               to="/admin/login"
               className={`block px-2 py-1.5 rounded text-sm font-medium hover:bg-green-600 ${isActive('/admin/login') ? 'bg-green-600' : ''}`}
