@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import { useCart } from '../context/CartContext';
@@ -8,6 +8,7 @@ const Navbar = () => {
   const { items } = useCart();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef(null);
 
   const isActive = (path) => location.pathname === path;
 
@@ -15,10 +16,29 @@ const Navbar = () => {
     logout();
   };
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Close menu when route changes
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location]);
+
   const cartItemCount = items.reduce((total, item) => total + item.quantity, 0);
 
   return (
-    <nav className="bg-green-600 text-white shadow-lg sticky top-0 z-50">
+    <nav ref={menuRef} className="bg-green-600 text-white shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="flex justify-between items-center h-14 md:h-16">
           {/* Logo */}

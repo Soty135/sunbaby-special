@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import api, { getMediaUrl } from '../services/api';
 import Swal from 'sweetalert2';
 
 const AdminDashboard = () => {
   const { user, logout } = useAdminAuth();
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('menu');
   const [menuItems, setMenuItems] = useState([]);
   const [galleryItems, setGalleryItems] = useState([]);
@@ -36,6 +37,7 @@ const AdminDashboard = () => {
 
   const handleLogout = () => {
     logout();
+    navigate('/');
   };
 
   useEffect(() => {
