@@ -16,6 +16,7 @@ const Menu = () => {
     try {
       setLoading(true);
       
+      console.log('Fetching menu from:', api.defaults.baseURL);
       // Always fetch all menu items to keep categories consistent
       const response = await api.get('/api/menu');
       
