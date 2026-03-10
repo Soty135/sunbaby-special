@@ -68,14 +68,30 @@ const Menu = () => {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-6">
           <div className="text-center flex-1">
             <h1 className="text-3xl md:text-5xl font-bold text-gray-800">🍽️ Menu</h1>
             <p className="text-lg md:text-xl text-gray-600">Browse our delicious options</p>
           </div>
+          
+          {/* Desktop Cart Button */}
           <Link
             to="/cart"
-            className="fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-green-700 flex items-center gap-2 z-40 md:relative md:bottom-auto md:right-auto md:bg-transparent md:text-green-600 md:shadow-none md:hover:text-green-700"
+            className="hidden md:flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition-colors"
+          >
+            <span>🛒</span>
+            <span className="font-medium">Cart</span>
+            {items.length > 0 && (
+              <span className="bg-red-500 text-white rounded-full px-2 py-0.5 text-xs">
+                {items.reduce((total, item) => total + item.quantity, 0)}
+              </span>
+            )}
+          </Link>
+          
+          {/* Mobile Floating Cart Button */}
+          <Link
+            to="/cart"
+            className="md:hidden fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-green-700 flex items-center gap-2 z-50"
           >
             <span>🛒</span>
             <span className="font-medium">Cart</span>

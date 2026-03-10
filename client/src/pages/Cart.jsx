@@ -119,15 +119,26 @@ Please confirm my order. Thank you! 🙏`;
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex justify-between items-center mb-8">
+        <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
+          <div className="flex justify-between items-center mb-6">
             <div className="text-center flex-1">
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-800">🍲 Sunbaby Special</h1>
-              <p className="text-lg md:text-xl text-gray-600">Guest Checkout</p>
+              <h1 className="text-2xl md:text-4xl font-bold text-gray-800">🍲 Sunbaby Special</h1>
+              <p className="text-base md:text-xl text-gray-600">Guest Checkout</p>
             </div>
+            
+            {/* Desktop Menu Button */}
             <Link
               to="/menu"
-              className="fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-green-700 flex items-center gap-2 z-40 md:relative md:bottom-auto md:right-auto md:bg-gray-600 md:hover:bg-gray-700"
+              className="hidden md:flex items-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition-colors"
+            >
+              <span>🍽️</span>
+              <span className="font-medium">Menu</span>
+            </Link>
+            
+            {/* Mobile Floating Menu Button */}
+            <Link
+              to="/menu"
+              className="md:hidden fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-green-700 flex items-center gap-2 z-50"
             >
               <span>🍽️</span>
               <span className="font-medium">Menu</span>
@@ -150,14 +161,13 @@ Please confirm my order. Thank you! 🙏`;
                 </a>
               </div>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
                 {/* Cart Items */}
                 <div className="lg:col-span-2">
                 {items.map((item, index) => (
-                  <div key={`${item.menuItemId}-${index}`} className="bg-white rounded-lg shadow-md p-6 mb-4">
-                      <div className="p-6 border-b border-gray-200">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div key={`${item.menuItemId}-${index}`} className="bg-white rounded-lg shadow-md p-3 md:p-4 mb-3">
+                      <div className="flex flex-col md:flex-row items-start md:items-center gap-3">
+                        <div className="w-16 h-16 md:w-20 md:h-20 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
                           {item.menuItem?.imageURL ? (
                             <img 
                               src={getMediaUrl(item.menuItem.imageURL)} 
@@ -166,33 +176,35 @@ Please confirm my order. Thank you! 🙏`;
                               crossOrigin="anonymous"
                             />
                           ) : (
-                            <span className="text-2xl">🍽️</span>
+                            <span className="text-xl">🍽️</span>
                           )}
                         </div>
                         
-                        <div className="flex-grow">
-                          <h3 className="font-semibold text-gray-800">{item.menuItem?.name || 'Item'}</h3>
-                          <p className="text-gray-600 text-sm">${item.price?.toFixed(2) || '0.00'} each</p>
+                        <div className="flex-grow w-full md:w-auto">
+                          <h3 className="font-semibold text-gray-800 text-sm md:text-base">{item.menuItem?.name || 'Item'}</h3>
+                          <p className="text-gray-600 text-xs md:text-sm">${item.price?.toFixed(2) || '0.00'} each</p>
                         </div>
                         
-                        <div className="flex items-center space-x-2">
-                          <button
-                            onClick={() => handleQuantityChange(item.menuItemId, item.quantity - 1)}
-                            className="bg-red-500 hover:bg-red-600 text-white rounded-l w-8 h-8 flex items-center justify-center"
-                            disabled={item.quantity <= 1}
-                          >
-                            -
-                          </button>
-                          <span className="w-8 text-center font-medium">{item.quantity}</span>
-                          <button
-                            onClick={() => handleQuantityChange(item.menuItemId, item.quantity + 1)}
-                            className="bg-green-500 hover:bg-green-600 text-white rounded-r w-8 h-8 flex items-center justify-center"
-                          >
-                            +
-                          </button>
+                        <div className="flex items-center justify-between w-full md:w-auto gap-2">
+                          <div className="flex items-center">
+                            <button
+                              onClick={() => handleQuantityChange(item.menuItemId, item.quantity - 1)}
+                              className="bg-red-500 hover:bg-red-600 text-white rounded-l w-7 h-7 md:w-8 md:h-8 flex items-center justify-center text-sm md:text-base"
+                              disabled={item.quantity <= 1}
+                            >
+                              -
+                            </button>
+                            <span className="w-6 md:w-8 text-center font-medium text-sm md:text-base">{item.quantity}</span>
+                            <button
+                              onClick={() => handleQuantityChange(item.menuItemId, item.quantity + 1)}
+                              className="bg-green-500 hover:bg-green-600 text-white rounded-r w-7 h-7 md:w-8 md:h-8 flex items-center justify-center text-sm md:text-base"
+                            >
+                              +
+                            </button>
+                          </div>
                           <button
                             onClick={() => handleRemoveItem(item.menuItemId, item.menuItem?.name)}
-                            className="bg-gray-500 hover:bg-gray-600 text-white rounded ml-2 w-8 h-8 flex items-center justify-center"
+                            className="bg-gray-500 hover:bg-gray-600 text-white rounded w-7 h-7 md:w-8 md:h-8 flex items-center justify-center text-sm md:text-base"
                             title="Remove item"
                           >
                             ×
