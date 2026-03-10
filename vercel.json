@@ -1,19 +1,11 @@
 {
-  "version": 2,
   "builds": [
     {
       "src": "client/package.json",
-      "use": "@vercel/node",
-      "config": {
-        "buildCommand": "cd client && npm install && npm run build",
-        "outputDirectory": "client/dist"
-      }
+      "use": "@vercel/static-build@1"
     }
   ],
   "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/client/dist/index.html"
-    }
+    { "src": "/(.*)", "dest": "/" }
   ]
 }
