@@ -26,9 +26,14 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // CORS configuration
-const allowedOrigins = process.env.CORS_ORIGIN 
+let allowedOrigins = process.env.CORS_ORIGIN 
   ? process.env.CORS_ORIGIN.split(',')
   : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176', 'http://localhost:5177', 'http://localhost:5178', 'http://localhost:5179', 'http://localhost:5180', 'http://localhost:5181', 'http://localhost:5182', 'http://localhost:5183', 'http://localhost:3000', 'http://localhost:8080'];
+
+// In production, if no CORS_ORIGIN is set, allow all origins
+if (process.env.NODE_ENV === 'production' && !process.env.CORS_ORIGIN) {
+  allowedOrigins = ['*'];
+}
 
 console.log('Allowed origins:', allowedOrigins);
 
