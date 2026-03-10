@@ -1,21 +1,14 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const MenuItem = require('../models/MenuItem');
 const adminAuth = require('../middleware/adminAuth');
 
 const router = express.Router();
 
-// Configure multer for image uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'menu-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
+// Use memory storage for file uploads (works better in containerized environments)
+const storage = multer.memoryStorage();
 
 const upload = multer({
   storage,
