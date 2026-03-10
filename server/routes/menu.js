@@ -64,6 +64,9 @@ router.get('/:id', async (req, res) => {
 
 // Create menu item (admin only)
 router.post('/', adminAuth, upload.single('image'), async (req, res) => {
+  console.log('POST /api/menu - Creating menu item');
+  console.log('req.body:', req.body);
+  console.log('req.file:', req.file ? 'file present' : 'no file');
   try {
     const { name, description, price, category, availability = true, imageURL } = req.body;
 
