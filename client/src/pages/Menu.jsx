@@ -22,9 +22,11 @@ const Menu = () => {
       
       console.log('Menu Data received:', response.data);
       console.log('Data length:', response.data?.length);
+      console.log('Selected category:', selectedCategory);
       
       // Extract unique categories from all items
       const uniqueCategories = [...new Set(response.data.map(item => item.category))];
+      console.log('Categories:', uniqueCategories);
       setCategories(uniqueCategories);
       
       // Filter locally based on selected category
@@ -32,6 +34,7 @@ const Menu = () => {
         ? response.data 
         : response.data.filter(item => item.category === selectedCategory);
       
+      console.log('Filtered items:', filteredItems.length);
       setMenuItems(filteredItems);
     } catch (error) {
       console.error('Error fetching menu items:', error);
