@@ -32,6 +32,7 @@ const upload = multer({
 
 // Get all menu items (public)
 router.get('/', async (req, res) => {
+  console.log('GET /api/menu - Fetching menu items');
   try {
     const { category, available } = req.query;
     let filter = {};
@@ -40,6 +41,7 @@ router.get('/', async (req, res) => {
     if (available !== undefined) filter.availability = available === 'true';
 
     const menuItems = await MenuItem.find(filter).sort({ createdAt: -1 });
+    console.log('Found menu items:', menuItems.length);
     res.json(menuItems);
   } catch (error) {
     console.error('Error fetching menu items:', error);
