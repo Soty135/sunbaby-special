@@ -100,7 +100,9 @@ router.post('/', adminAuth, upload.single('image'), async (req, res) => {
       imageURL: finalImageURL
     });
 
+    console.log('Saving menu item...');
     await menuItem.save();
+    console.log('Menu item saved:', menuItem._id);
     res.status(201).json(menuItem);
   } catch (error) {
     console.error('Error creating menu item:', error);
