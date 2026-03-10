@@ -15,6 +15,7 @@ import AdminDashboard from './pages/AdminDashboard';
 // Import components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -47,6 +48,7 @@ function App() {
     <CartProvider>
       <AdminAuthProvider>
         <Router>
+          <ScrollToTop />
           <div className="min-h-screen flex flex-col">
             <Navbar />
             <main className="flex-grow">
