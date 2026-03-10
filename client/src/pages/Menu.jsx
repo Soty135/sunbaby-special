@@ -77,10 +77,11 @@ const Menu = () => {
           {/* Desktop Cart Button */}
           <Link
             to="/cart"
-            className="hidden md:flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition-colors"
+            className="hidden md:flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-full font-semibold transition-colors"
+            style={{ backgroundColor: '#16a34a' }}
           >
             <span>🛒</span>
-            <span className="font-medium">Cart</span>
+            <span>Cart</span>
             {items.length > 0 && (
               <span className="bg-red-500 text-white rounded-full px-2 py-0.5 text-xs">
                 {items.reduce((total, item) => total + item.quantity, 0)}
@@ -91,10 +92,11 @@ const Menu = () => {
           {/* Mobile Floating Cart Button */}
           <Link
             to="/cart"
-            className="md:hidden fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-green-700 flex items-center gap-2 z-50"
+            className="md:hidden fixed bottom-4 right-4 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-full shadow-lg flex items-center gap-2 z-50 font-semibold"
+            style={{ backgroundColor: '#16a34a' }}
           >
             <span>🛒</span>
-            <span className="font-medium">Cart</span>
+            <span>Cart</span>
             {items.length > 0 && (
               <span className="bg-red-500 text-white rounded-full px-2 py-0.5 text-xs">
                 {items.reduce((total, item) => total + item.quantity, 0)}

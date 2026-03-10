@@ -129,19 +129,21 @@ Please confirm my order. Thank you! 🙏`;
             {/* Desktop Menu Button */}
             <Link
               to="/menu"
-              className="hidden md:flex items-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition-colors"
+              className="hidden md:flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-5 py-2.5 rounded-full font-semibold transition-colors"
+              style={{ backgroundColor: '#4b5563' }}
             >
               <span>🍽️</span>
-              <span className="font-medium">Menu</span>
+              <span>Menu</span>
             </Link>
             
             {/* Mobile Floating Menu Button */}
             <Link
               to="/menu"
-              className="md:hidden fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-green-700 flex items-center gap-2 z-50"
+              className="md:hidden fixed bottom-4 right-4 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-full shadow-lg flex items-center gap-2 z-50 font-semibold"
+              style={{ backgroundColor: '#16a34a' }}
             >
               <span>🍽️</span>
-              <span className="font-medium">Menu</span>
+              <span>Menu</span>
             </Link>
           </div>
         
@@ -166,54 +168,56 @@ Please confirm my order. Thank you! 🙏`;
                 <div className="lg:col-span-2">
                 {items.map((item, index) => (
                   <div key={`${item.menuItemId}-${index}`} className="bg-white rounded-lg shadow-md p-3 md:p-4 mb-3">
-                      <div className="flex flex-col md:flex-row items-start md:items-center gap-3">
-                        <div className="w-16 h-16 md:w-20 md:h-20 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                          {item.menuItem?.imageURL ? (
-                            <img 
-                              src={getMediaUrl(item.menuItem.imageURL)} 
-                              alt={item.menuItem?.name || 'Item'}
-                              className="w-full h-full object-cover rounded-lg"
-                              crossOrigin="anonymous"
-                            />
-                          ) : (
-                            <span className="text-xl">🍽️</span>
-                          )}
-                        </div>
-                        
-                        <div className="flex-grow w-full md:w-auto">
-                          <h3 className="font-semibold text-gray-800 text-sm md:text-base">{item.menuItem?.name || 'Item'}</h3>
-                          <p className="text-gray-600 text-xs md:text-sm">${item.price?.toFixed(2) || '0.00'} each</p>
-                        </div>
-                        
-                        <div className="flex items-center justify-between w-full md:w-auto gap-2">
-                          <div className="flex items-center">
-                            <button
-                              onClick={() => handleQuantityChange(item.menuItemId, item.quantity - 1)}
-                              className="bg-red-500 hover:bg-red-600 text-white rounded-l w-7 h-7 md:w-8 md:h-8 flex items-center justify-center text-sm md:text-base"
-                              disabled={item.quantity <= 1}
-                            >
-                              -
-                            </button>
-                            <span className="w-6 md:w-8 text-center font-medium text-sm md:text-base">{item.quantity}</span>
-                            <button
-                              onClick={() => handleQuantityChange(item.menuItemId, item.quantity + 1)}
-                              className="bg-green-500 hover:bg-green-600 text-white rounded-r w-7 h-7 md:w-8 md:h-8 flex items-center justify-center text-sm md:text-base"
-                            >
-                              +
-                            </button>
-                          </div>
+                    <div className="flex flex-col md:flex-row items-start md:items-center gap-3">
+                      {/* Image */}
+                      <div className="w-16 h-16 md:w-20 md:h-20 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                        {item.menuItem?.imageURL ? (
+                          <img 
+                            src={getMediaUrl(item.menuItem.imageURL)} 
+                            alt={item.menuItem?.name || 'Item'}
+                            className="w-full h-full object-cover rounded-lg"
+                            crossOrigin="anonymous"
+                          />
+                        ) : (
+                          <span className="text-xl">🍽️</span>
+                        )}
+                      </div>
+                      
+                      {/* Name and Price */}
+                      <div className="flex-grow w-full md:w-auto">
+                        <h3 className="font-semibold text-gray-800 text-sm md:text-base">{item.menuItem?.name || 'Item'}</h3>
+                        <p className="text-gray-600 text-xs md:text-sm">${item.price?.toFixed(2) || '0.00'} each</p>
+                      </div>
+                      
+                      {/* Quantity Controls */}
+                      <div className="flex items-center justify-between w-full md:w-auto gap-2 mt-2 md:mt-0">
+                        <div className="flex items-center">
                           <button
-                            onClick={() => handleRemoveItem(item.menuItemId, item.menuItem?.name)}
-                            className="bg-gray-500 hover:bg-gray-600 text-white rounded w-7 h-7 md:w-8 md:h-8 flex items-center justify-center text-sm md:text-base"
-                            title="Remove item"
+                            onClick={() => handleQuantityChange(item.menuItemId, item.quantity - 1)}
+                            className="bg-red-500 hover:bg-red-600 text-white rounded-l w-8 h-8 flex items-center justify-center text-lg font-bold"
+                            disabled={item.quantity <= 1}
                           >
-                            ×
+                            −
+                          </button>
+                          <span className="w-10 text-center font-medium">{item.quantity}</span>
+                          <button
+                            onClick={() => handleQuantityChange(item.menuItemId, item.quantity + 1)}
+                            className="bg-green-500 hover:bg-green-600 text-white rounded-r w-8 h-8 flex items-center justify-center text-lg font-bold"
+                          >
+                            +
                           </button>
                         </div>
-                        </div>
+                        <button
+                          onClick={() => handleRemoveItem(item.menuItemId, item.menuItem?.name)}
+                          className="bg-gray-500 hover:bg-gray-600 text-white rounded w-8 h-8 flex items-center justify-center text-lg"
+                          title="Remove item"
+                        >
+                          ×
+                        </button>
                       </div>
                     </div>
-                  ))}
+                  </div>
+                ))}
                 </div>
                 
                 {/* Order Summary */}
