@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import useCart from '../hooks/useCart';
 import api from '../services/api';
 import { getMediaUrl } from '../services/api';
@@ -9,7 +10,7 @@ const Menu = () => {
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const { addToCart } = useCart();
+  const { addToCart, items } = useCart();
 
   const fetchMenuItems = useCallback(async () => {
     try {
@@ -64,12 +65,26 @@ const Menu = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">🍽️ Menu</h1>
-          <p className="text-xl md:text-2xl text-gray-600">Browse our delicious options</p>
+        <div className="flex justify-between items-center mb-8">
+          <div className="text-center flex-1">
+            <h1 className="text-3xl md:text-5xl font-bold text-gray-800">🍽️ Menu</h1>
+            <p className="text-lg md:text-xl text-gray-600">Browse our delicious options</p>
+          </div>
+          <Link
+            to="/cart"
+            className="fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-green-700 flex items-center gap-2 z-40 md:relative md:bottom-auto md:right-auto md:bg-transparent md:text-green-600 md:shadow-none md:hover:text-green-700"
+          >
+            <span>🛒</span>
+            <span className="font-medium">Cart</span>
+            {items.length > 0 && (
+              <span className="bg-red-500 text-white rounded-full px-2 py-0.5 text-xs">
+                {items.reduce((total, item) => total + item.quantity, 0)}
+              </span>
+            )}
+          </Link>
         </div>
 
         {/* Category Filter */}
