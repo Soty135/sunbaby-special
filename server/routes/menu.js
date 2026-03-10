@@ -80,7 +80,20 @@ router.post('/', adminAuth, upload.single('image'), async (req, res) => {
       });
     }
 
-    const finalImageURL = req.file ? `/uploads/${req.file.filename}` : (imageURL || '');
+    let finalImageURL = '';
+
+    // Handle file upload - convert to Base64
+    if (req.file) {
+      const base64 = req.file.buffer.toString('base64');
+      const mimeType = req.file.mimetype;
+      finalImageURL = `data:${mimeType};base64,${base64}`;
+    } else if (imageURL && imageURL.startsWith('data:')) {
+      // Already Base64
+      finalImageURL = imageURL;
+    } else if (imageURL && !imageURL.startsWith('http')) {
+      // Keep existing path for backwards compatibility
+      finalImageURL = imageURL;
+    }
 
     const menuItem = new MenuItem({
       name,
@@ -112,9 +125,16 @@ router.put('/:id', adminAuth, upload.single('image'), async (req, res) => {
       availability: availability !== 'false'
     };
 
+    // Handle file upload - convert to Base64
     if (req.file) {
-      updateData.imageURL = `/uploads/${req.file.filename}`;
+      const base64 = req.file.buffer.toString('base64');
+      const mimeType = req.file.mimetype;
+      updateData.imageURL = `data:${mimeType};base64,${base64}`;
+    } else if (imageURL && imageURL.startsWith('data:')) {
+      // Already Base64
+      updateData.imageURL = imageURL;
     } else if (imageURL !== undefined) {
+      // Keep existing path or new URL
       updateData.imageURL = imageURL;
     }
 

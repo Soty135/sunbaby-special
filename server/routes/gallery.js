@@ -112,13 +112,18 @@ router.post('/upload', adminAuth, upload.single('media'), async (req, res) => {
     // Determine media type based on file mimetype
     const mediaType = req.file.mimetype.startsWith('video/') ? 'video' : 'image';
 
+    // Convert to Base64 for persistence
+    const base64 = req.file.buffer.toString('base64');
+    const mimeType = req.file.mimetype;
+    const mediaURL = `data:${mimeType};base64,${base64}`;
+
     // Try database first with timeout
     try {
       console.log('Attempting to save to MongoDB...');
       const galleryItem = new Gallery({
         title,
         description,
-        mediaURL: `/uploads/${req.file.filename}`,
+        mediaURL: mediaURL,
         mediaType,
         uploadedBy: new mongoose.Types.ObjectId(req.user.id)
       });
@@ -167,9 +172,11 @@ router.put('/:id', adminAuth, upload.single('media'), async (req, res) => {
       description
     };
 
-    // If a new file was uploaded, update the mediaURL and mediaType
+    // If a new file was uploaded, update the mediaURL and mediaType - convert to Base64
     if (req.file) {
-      updateData.mediaURL = `/uploads/${req.file.filename}`;
+      const base64 = req.file.buffer.toString('base64');
+      const mimeType = req.file.mimetype;
+      updateData.mediaURL = `data:${mimeType};base64,${base64}`;
       updateData.mediaType = req.file.mimetype.startsWith('video/') ? 'video' : 'image';
     } else if (mediaType) {
       updateData.mediaType = mediaType;

@@ -35,10 +35,19 @@ api.interceptors.response.use(
 
 // Helper to get full URL for images and media
 export const getMediaUrl = (mediaPath) => {
+  // If it's already a Base64 data URL, return as is
+  if (mediaPath && mediaPath.startsWith('data:')) {
+    return mediaPath;
+  }
+  
+  // If it's a full URL (http/https), return as is
+  if (mediaPath && mediaPath.startsWith('http')) {
+    return mediaPath;
+  }
+  
+  // Otherwise, prepend the API URL
   const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
-  return mediaPath && mediaPath.startsWith('http') 
-    ? mediaPath 
-    : `${baseUrl}${mediaPath || ''}`;
+  return `${baseUrl}${mediaPath || ''}`;
 };
 
 export default api;
