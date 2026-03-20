@@ -102,19 +102,11 @@ const Gallery = () => {
                     )}
                   </div>
                 ) : (
-                  <div className="aspect-square bg-gray-200">
-                    {item.mediaURL ? (
-                      <video 
-                        src={getMediaUrl(item.mediaURL)}
-                        alt={item.title}
-                        className="w-full h-full object-cover"
-                        controls
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <div className="text-4xl">🎬</div>
-                      </div>
-                    )}
+                  <div className="aspect-square bg-gray-800 relative flex items-center justify-center">
+                    <div className="text-6xl">🎬</div>
+                    <div className="absolute bottom-1 right-1 bg-black bg-opacity-50 rounded px-2 py-1">
+                      <span className="text-white text-xs">Video</span>
+                    </div>
                   </div>
                 )}
                 
@@ -170,13 +162,14 @@ const Gallery = () => {
                       />
                     </div>
                   ) : (
-                    <div className="bg-gray-100 rounded-lg p-4">
+                    <div className="bg-gray-900 rounded-lg p-4 flex items-center justify-center min-h-64">
                       {selectedItem.mediaURL ? (
                         <video 
                           src={getMediaUrl(selectedItem.mediaURL)}
                           alt={selectedItem.title}
-                          className="w-full max-h-96 object-contain mx-auto"
+                          className="w-full max-h-96 mx-auto"
                           controls
+                          playsInline
                         />
                       ) : (
                         <div className="text-8xl mb-4">🎬</div>
