@@ -21,21 +21,21 @@ const mockMenuItems = {
 // Get user's cart
 router.get('/', async (req, res) => {
   try {
-    console.log('Get cart request for user:', req.user ? req.user.id : 'No user');
+    console.log('Get cart request for user:', req.user ? req.user._id : 'No user');
     
     // Try database first with timeout
     try {
       let cart = await Promise.race([
-        Cart.findOne({ userId: req.user.id }).populate('items.menuItemId'),
+        Cart.findOne({ userId: req.user._id }).populate('items.menuItemId'),
         new Promise((_, reject) => 
           setTimeout(() => reject(new Error('DB timeout')), 3000)
         )
       ]);
       
       if (!cart) {
-        cart = new Cart({ userId: req.user.id, items: [] });
+        cart = new Cart({ userId: req.user._id, items: [] });
         await cart.save();
-        console.log('Created new cart for user:', req.user.id);
+        console.log('Created new cart for user:', req.user._id);
       }
 
       console.log('Cart retrieved successfully:', cart._id);
@@ -44,21 +44,21 @@ router.get('/', async (req, res) => {
       console.log('Database not available for cart, using mock data:', dbError.message);
       
       // Fallback to mock cart data
-      if (!mockCarts.has(req.user.id)) {
+      if (!mockCarts.has(req.user._id)) {
         const initialCart = {
           _id: 'mock-cart-id',
-          userId: req.user.id,
+          userId: req.user._id,
           items: [],
           totalAmount: 0,
           createdAt: new Date(),
           updatedAt: new Date()
         };
-        mockCarts.set(req.user.id, initialCart);
-        console.log('Returning mock cart for user:', req.user.id);
+        mockCarts.set(req.user._id, initialCart);
+        console.log('Returning mock cart for user:', req.user._id);
         return res.json(initialCart);
       }
       
-      const mockCart = mockCarts.get(req.user.id);
+      const mockCart = mockCarts.get(req.user._id);
       // Populate menu item data for each cart item
       mockCart.items = mockCart.items.map(item => ({
         ...item,
@@ -71,7 +71,7 @@ router.get('/', async (req, res) => {
         }
       }));
       
-      console.log('Returning mock cart for user:', req.user.id);
+      console.log('Returning mock cart for user:', req.user._id);
       res.json(mockCart);
     }
   } catch (error) {
@@ -89,7 +89,7 @@ router.post('/add', async (req, res) => {
   try {
     console.log('Add to cart request START');
     console.log('Request body:', req.body);
-    console.log('Request user:', req.user ? req.user.id : 'No user');
+    console.log('Request user:', req.user ? req.user._id : 'No user');
     console.log('Request headers:', req.headers);
 
     const { menuItemId, quantity = 1 } = req.body;
@@ -133,14 +133,14 @@ router.post('/add', async (req, res) => {
       }
 
       let cart = await Promise.race([
-        Cart.findOne({ userId: req.user.id }),
+        Cart.findOne({ userId: req.user._id }),
         new Promise((_, reject) => 
           setTimeout(() => reject(new Error('DB timeout')), 3000)
         )
       ]);
     
     if (!cart) {
-      cart = new Cart({ userId: req.user.id, items: [] });
+      cart = new Cart({ userId: req.user._id, items: [] });
     }
 
     // Check if item already in cart
@@ -172,10 +172,10 @@ router.post('/add', async (req, res) => {
       console.log('Database not available for add to cart, using mock data:', dbError.message);
       
       // Fallback to in-memory cart
-      if (!mockCarts.has(req.user.id)) {
-        mockCarts.set(req.user.id, {
+      if (!mockCarts.has(req.user._id)) {
+        mockCarts.set(req.user._id, {
           _id: 'mock-cart-id',
-          userId: req.user.id,
+          userId: req.user._id,
           items: [],
           totalAmount: 0,
           createdAt: new Date(),
@@ -183,7 +183,7 @@ router.post('/add', async (req, res) => {
         });
       }
       
-      const mockCart = mockCarts.get(req.user.id);
+      const mockCart = mockCarts.get(req.user._id);
       const mockMenuItem = mockMenuItems[menuItemId];
       
       if (!mockMenuItem) {
@@ -246,7 +246,7 @@ router.put('/update', async (req, res) => {
     // Try database first with timeout
     try {
       let cart = await Promise.race([
-        Cart.findOne({ userId: req.user.id }),
+        Cart.findOne({ userId: req.user._id }),
         new Promise((_, reject) => 
           setTimeout(() => reject(new Error('DB timeout')), 3000)
         )
@@ -273,11 +273,11 @@ router.put('/update', async (req, res) => {
       console.log('Database not available for update cart, using mock data:', dbError.message);
       
       // Fallback to in-memory cart
-      if (!mockCarts.has(req.user.id)) {
+      if (!mockCarts.has(req.user._id)) {
         return res.status(404).json({ message: 'Cart not found' });
       }
       
-      const mockCart = mockCarts.get(req.user.id);
+      const mockCart = mockCarts.get(req.user._id);
       const itemIndex = mockCart.items.findIndex(
         item => item.menuItemId._id === menuItemId || item.menuItemId.toString() === menuItemId
       );
@@ -314,7 +314,7 @@ router.delete('/remove/:menuItemId', async (req, res) => {
     // Try database first with timeout
     try {
       let cart = await Promise.race([
-        Cart.findOne({ userId: req.user.id }),
+        Cart.findOne({ userId: req.user._id }),
         new Promise((_, reject) => 
           setTimeout(() => reject(new Error('DB timeout')), 3000)
         )
@@ -336,11 +336,11 @@ router.delete('/remove/:menuItemId', async (req, res) => {
       console.log('Database not available for remove cart, using mock data:', dbError.message);
       
       // Fallback to in-memory cart
-      if (!mockCarts.has(req.user.id)) {
+      if (!mockCarts.has(req.user._id)) {
         return res.status(404).json({ message: 'Cart not found' });
       }
       
-      const mockCart = mockCarts.get(req.user.id);
+      const mockCart = mockCarts.get(req.user._id);
       mockCart.items = mockCart.items.filter(
         item => (item.menuItemId._id !== req.params.menuItemId && item.menuItemId.toString() !== req.params.menuItemId)
       );
@@ -371,7 +371,7 @@ router.delete('/clear', async (req, res) => {
     // Try database first with timeout
     try {
       let cart = await Promise.race([
-        Cart.findOne({ userId: req.user.id }),
+        Cart.findOne({ userId: req.user._id }),
         new Promise((_, reject) => 
           setTimeout(() => reject(new Error('DB timeout')), 3000)
         )
@@ -389,11 +389,11 @@ router.delete('/clear', async (req, res) => {
       console.log('Database not available for clear cart, using mock data:', dbError.message);
       
       // Fallback to in-memory cart
-      if (!mockCarts.has(req.user.id)) {
+      if (!mockCarts.has(req.user._id)) {
         return res.status(404).json({ message: 'Cart not found' });
       }
       
-      const mockCart = mockCarts.get(req.user.id);
+      const mockCart = mockCarts.get(req.user._id);
       mockCart.items = [];
       mockCart.totalAmount = 0;
       mockCart.updatedAt = new Date();

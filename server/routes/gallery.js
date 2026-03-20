@@ -10,16 +10,8 @@ const router = express.Router();
 // In-memory gallery storage for fallback
 let mockGalleryItems = [];
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  }
-});
+// Configure multer for file uploads - use memory storage for base64 conversion
+const storage = multer.memoryStorage();
 
 const upload = multer({
   storage,
@@ -120,12 +112,20 @@ router.post('/upload', adminAuth, upload.single('media'), async (req, res) => {
     // Try database first with timeout
     try {
       console.log('Attempting to save to MongoDB...');
+      
+      // Validate ObjectId
+      let userId = req.user._id;
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        // For mock tokens, use a fallback
+        userId = '000000000000000000000000';
+      }
+      
       const galleryItem = new Gallery({
         title,
         description,
         mediaURL: mediaURL,
         mediaType,
-        uploadedBy: new mongoose.Types.ObjectId(req.user.id)
+        uploadedBy: new mongoose.Types.ObjectId(userId)
       });
 
       await galleryItem.save();
@@ -138,15 +138,20 @@ router.post('/upload', adminAuth, upload.single('media'), async (req, res) => {
       console.log('Falling back to mock data');
       
       // Fallback to mock gallery upload
+      const base64 = req.file.buffer.toString('base64');
+      let userId = req.user._id;
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        userId = '000000000000000000000000';
+      }
       const mockGalleryItem = {
         _id: `mock-gallery-${Date.now()}`,
         title,
         description,
-        mediaURL: `/uploads/${req.file.filename}`,
+        mediaURL: `data:${req.file.mimetype};base64,${base64}`,
         mediaType,
         uploadedBy: {
-          _id: new mongoose.Types.ObjectId(req.user.id),
-          name: req.user.name || 'Admin'
+          _id: new mongoose.Types.ObjectId(userId),
+          name: req.user.email || 'Admin'
         },
         uploadDate: new Date()
       };
@@ -158,7 +163,8 @@ router.post('/upload', adminAuth, upload.single('media'), async (req, res) => {
       res.status(201).json(mockGalleryItem);
     }
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Gallery upload error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message, stack: error.stack });
   }
 });
 
