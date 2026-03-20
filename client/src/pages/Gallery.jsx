@@ -1,6 +1,48 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import api from '../services/api';
 import { getMediaUrl } from '../services/api';
+
+const VideoThumbnail = ({ src }) => {
+  const [thumbnail, setThumbnail] = useState(null);
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const captureFrame = () => {
+      if (videoRef.current) {
+        const video = videoRef.current;
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth || 320;
+        canvas.height = video.videoHeight || 240;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        setThumbnail(canvas.toDataURL('image/jpeg', 0.8));
+      }
+    };
+
+    const video = videoRef.current;
+    if (video) {
+      video.addEventListener('loadeddata', captureFrame);
+      return () => video.removeEventListener('loadeddata', captureFrame);
+    }
+  }, []);
+
+  return (
+    <>
+      <video
+        ref={videoRef}
+        src={src}
+        crossOrigin="anonymous"
+        className="hidden"
+        onLoadedData={captureFrame}
+      />
+      {thumbnail ? (
+        <img src={thumbnail} alt="Video thumbnail" className="w-full h-full object-cover" />
+      ) : (
+        <div className="text-6xl">🎬</div>
+      )}
+    </>
+  );
+};
 
 const Gallery = () => {
   const [galleryItems, setGalleryItems] = useState([]);
@@ -103,7 +145,11 @@ const Gallery = () => {
                   </div>
                 ) : (
                   <div className="aspect-square bg-gray-800 relative flex items-center justify-center">
-                    <div className="text-6xl">🎬</div>
+                    {item.mediaURL ? (
+                      <VideoThumbnail src={getMediaUrl(item.mediaURL)} />
+                    ) : (
+                      <div className="text-6xl">🎬</div>
+                    )}
                     <div className="absolute bottom-1 right-1 bg-black bg-opacity-50 rounded px-2 py-1">
                       <span className="text-white text-xs">Video</span>
                     </div>
