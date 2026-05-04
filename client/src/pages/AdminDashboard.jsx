@@ -11,7 +11,6 @@ const AdminDashboard = () => {
   const [menuItems, setMenuItems] = useState([]);
   const [galleryItems, setGalleryItems] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [menuLoading, setMenuLoading] = useState(false);
   const [menuError, setMenuError] = useState(null);
   
   // Menu form state
@@ -55,7 +54,6 @@ const AdminDashboard = () => {
   }, [activeSection]);
 
   const fetchMenuItems = async () => {
-    setMenuLoading(true);
     setMenuError(null);
     try {
       const response = await api.get('/api/menu');
@@ -63,8 +61,6 @@ const AdminDashboard = () => {
     } catch (error) {
       console.error('Failed to fetch menu items:', error);
       setMenuError(error.message || 'Failed to load menu items. Please check your connection.');
-    } finally {
-      setMenuLoading(false);
     }
   };
 
@@ -155,6 +151,10 @@ const AdminDashboard = () => {
     
     if (!result.isConfirmed) return;
     
+    // Optimistically remove from UI immediately
+    const previousItems = menuItems;
+    setMenuItems(prevItems => prevItems.filter(item => item._id !== id));
+    
     try {
       await api.delete(`/api/menu/${id}`);
       fetchMenuItems();
@@ -166,6 +166,8 @@ const AdminDashboard = () => {
         showConfirmButton: false
       });
     } catch (error) {
+      // Rollback on error
+      setMenuItems(previousItems);
       console.error('Failed to delete menu item:', error);
       Swal.fire({
         icon: 'error',
@@ -187,6 +189,8 @@ const AdminDashboard = () => {
     });
     setPreviewUrl(item.imageURL ? getMediaUrl(item.imageURL) : '');
     setMenuImageFile(null);
+    // Scroll to top so user can see the form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const toggleAvailability = async (id, currentAvailability) => {
@@ -523,13 +527,7 @@ const AdminDashboard = () => {
       {/* Menu Items List */}
       <div className="bg-white p-6 rounded-lg shadow-md">
         <h3 className="text-lg font-semibold mb-4">Current Menu Items</h3>
-        
-        {menuLoading && (
-          <div className="flex justify-center items-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-          </div>
-        )}
-        
+         
         {menuError && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
             <strong className="font-bold">Error: </strong>
