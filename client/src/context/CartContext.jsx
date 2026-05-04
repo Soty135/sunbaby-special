@@ -191,7 +191,7 @@ export const CartProvider = ({ children }) => {
     }
   }, []);
 
-  const updateCartItem = useCallback(async (menuItemId, quantity) => {
+  const updateCartItem = useCallback(async (menuItemId, quantity, size = null) => {
     if (quantity < 1) return;
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
@@ -199,7 +199,9 @@ export const CartProvider = ({ children }) => {
       const guestCart = localStorage.getItem('guestCart');
       const currentCart = guestCart ? JSON.parse(guestCart) : { items: [], totalAmount: 0 };
       
-      const existingItemIndex = currentCart.items.findIndex(item => item.menuItemId === menuItemId);
+      const existingItemIndex = currentCart.items.findIndex(item => 
+        item.menuItemId === menuItemId && item.size === size
+      );
       
       if (existingItemIndex >= 0) {
         currentCart.items[existingItemIndex].quantity = quantity;
@@ -223,14 +225,16 @@ export const CartProvider = ({ children }) => {
     }
   }, []);
 
-  const removeFromCart = useCallback(async (menuItemId) => {
+  const removeFromCart = useCallback(async (menuItemId, size = null) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       
       const guestCart = localStorage.getItem('guestCart');
       const currentCart = guestCart ? JSON.parse(guestCart) : { items: [], totalAmount: 0 };
       
-      currentCart.items = currentCart.items.filter(item => item.menuItemId !== menuItemId);
+      currentCart.items = currentCart.items.filter(item => 
+        !(item.menuItemId === menuItemId && item.size === size)
+      );
       currentCart.totalAmount = currentCart.items.reduce((total, item) => total + (item.price * item.quantity), 0);
       
       localStorage.setItem('guestCart', JSON.stringify(currentCart));

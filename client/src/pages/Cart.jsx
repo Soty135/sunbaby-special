@@ -12,10 +12,10 @@ const Cart = () => {
     getCart();
   }, [getCart]);
 
-  const handleQuantityChange = async (menuItemId, newQuantity) => {
+  const handleQuantityChange = async (menuItemId, newQuantity, size = null) => {
     if (newQuantity < 1) return;
     try {
-      await updateCartItem(menuItemId, newQuantity);
+      await updateCartItem(menuItemId, newQuantity, size);
     } catch (error) {
       Swal.fire({
         icon: 'error',
@@ -25,10 +25,10 @@ const Cart = () => {
     }
   };
 
-  const handleRemoveItem = async (menuItemId, itemName) => {
+  const handleRemoveItem = async (menuItemId, itemName, size = null) => {
     const result = await Swal.fire({
       title: 'Remove Item?',
-      text: `Are you sure you want to remove ${itemName || 'this item'} from your cart?`,
+      text: `Are you sure you want to remove ${itemName || 'this item'}${size ? ` (${size})` : ''} from your cart?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
@@ -39,7 +39,7 @@ const Cart = () => {
 
     if (result.isConfirmed) {
       try {
-        await removeFromCart(menuItemId);
+        await removeFromCart(menuItemId, size);
         Swal.fire({
           icon: 'success',
           title: 'Removed!',
@@ -166,61 +166,61 @@ Please confirm my order. Thank you! 🙏`;
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
                 {/* Cart Items */}
                 <div className="lg:col-span-2">
-                {items.map((item, index) => (
-                  <div key={`${item.menuItemId}-${index}`} className="bg-white rounded-lg shadow-md p-3 md:p-4 mb-3">
-                    <div className="flex flex-col md:flex-row items-start md:items-center gap-3">
-                      {/* Image */}
-                      <div className="w-16 h-16 md:w-20 md:h-20 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                        {item.menuItem?.imageURL ? (
-                          <img 
-                            src={getMediaUrl(item.menuItem.imageURL)} 
-                            alt={item.menuItem?.name || 'Item'}
-                            className="w-full h-full object-cover rounded-lg"
-                            crossOrigin="anonymous"
-                          />
-                        ) : (
-                          <span className="text-xl">🍽️</span>
-                        )}
-                      </div>
-                      
-                      {/* Name and Price */}
-                       <div className="flex-grow w-full md:w-auto">
-                         <h3 className="font-semibold text-gray-800 text-sm md:text-base">{item.menuItem?.name || 'Item'}</h3>
-                         <p className="text-gray-600 text-xs md:text-sm">
-                           ${item.price?.toFixed(2) || '0.00'} each
-                           {item.size && <span className="ml-2 bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs">{item.size}</span>}
-                         </p>
+                 {items.map((item, index) => (
+                   <div key={`${item.menuItemId}-${item.size || 'default'}-${index}`} className="bg-white rounded-lg shadow-md p-3 md:p-4 mb-3">
+                     <div className="flex flex-col md:flex-row items-start md:items-center gap-3">
+                       {/* Image */}
+                       <div className="w-16 h-16 md:w-20 md:h-20 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                         {item.menuItem?.imageURL ? (
+                           <img 
+                             src={getMediaUrl(item.menuItem.imageURL)} 
+                             alt={item.menuItem?.name || 'Item'}
+                             className="w-full h-full object-cover rounded-lg"
+                             crossOrigin="anonymous"
+                           />
+                         ) : (
+                           <span className="text-xl">🍽️</span>
+                         )}
                        </div>
-                      
-                      {/* Quantity Controls */}
-                      <div className="flex items-center justify-between w-full md:w-auto gap-2 mt-2 md:mt-0">
-                        <div className="flex items-center">
-                          <button
-                            onClick={() => handleQuantityChange(item.menuItemId, item.quantity - 1)}
-                            className="bg-red-500 hover:bg-red-600 text-white rounded-l w-8 h-8 flex items-center justify-center text-lg font-bold"
-                            disabled={item.quantity <= 1}
-                          >
-                            −
-                          </button>
-                          <span className="w-10 text-center font-medium">{item.quantity}</span>
-                          <button
-                            onClick={() => handleQuantityChange(item.menuItemId, item.quantity + 1)}
-                            className="bg-green-500 hover:bg-green-600 text-white rounded-r w-8 h-8 flex items-center justify-center text-lg font-bold"
-                          >
-                            +
-                          </button>
+                       
+                       {/* Name and Price */}
+                        <div className="flex-grow w-full md:w-auto">
+                          <h3 className="font-semibold text-gray-800 text-sm md:text-base">{item.menuItem?.name || 'Item'}</h3>
+                          <p className="text-gray-600 text-xs md:text-sm">
+                            ${item.price?.toFixed(2) || '0.00'} each
+                            {item.size && <span className="ml-2 bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs">{item.size}</span>}
+                          </p>
                         </div>
-                        <button
-                          onClick={() => handleRemoveItem(item.menuItemId, item.menuItem?.name)}
-                          className="bg-gray-500 hover:bg-gray-600 text-white rounded w-8 h-8 flex items-center justify-center text-lg"
-                          title="Remove item"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                       
+                       {/* Quantity Controls */}
+                       <div className="flex items-center justify-between w-full md:w-auto gap-2 mt-2 md:mt-0">
+                         <div className="flex items-center">
+                           <button
+                             onClick={() => handleQuantityChange(item.menuItemId, item.quantity - 1, item.size)}
+                             className="bg-red-500 hover:bg-red-600 text-white rounded-l w-8 h-8 flex items-center justify-center text-lg font-bold"
+                             disabled={item.quantity <= 1}
+                           >
+                             −
+                           </button>
+                           <span className="w-10 text-center font-medium">{item.quantity}</span>
+                           <button
+                             onClick={() => handleQuantityChange(item.menuItemId, item.quantity + 1, item.size)}
+                             className="bg-green-500 hover:bg-green-600 text-white rounded-r w-8 h-8 flex items-center justify-center text-lg font-bold"
+                           >
+                             +
+                           </button>
+                         </div>
+                         <button
+                           onClick={() => handleRemoveItem(item.menuItemId, item.menuItem?.name, item.size)}
+                           className="bg-gray-500 hover:bg-gray-600 text-white rounded w-8 h-8 flex items-center justify-center text-lg"
+                           title="Remove item"
+                         >
+                           ×
+                         </button>
+                       </div>
+                     </div>
+                   </div>
+                 ))}
                 </div>
                 
                 {/* Order Summary */}
