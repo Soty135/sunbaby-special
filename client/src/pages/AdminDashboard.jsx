@@ -11,6 +11,8 @@ const AdminDashboard = () => {
   const [menuItems, setMenuItems] = useState([]);
   const [galleryItems, setGalleryItems] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [menuLoading, setMenuLoading] = useState(false);
+  const [menuError, setMenuError] = useState(null);
   
   // Menu form state
   const [menuForm, setMenuForm] = useState({
@@ -53,11 +55,16 @@ const AdminDashboard = () => {
   }, [activeSection]);
 
   const fetchMenuItems = async () => {
+    setMenuLoading(true);
+    setMenuError(null);
     try {
       const response = await api.get('/api/menu');
       setMenuItems(response.data);
     } catch (error) {
       console.error('Failed to fetch menu items:', error);
+      setMenuError(error.message || 'Failed to load menu items. Please check your connection.');
+    } finally {
+      setMenuLoading(false);
     }
   };
 
@@ -516,6 +523,20 @@ const AdminDashboard = () => {
       {/* Menu Items List */}
       <div className="bg-white p-6 rounded-lg shadow-md">
         <h3 className="text-lg font-semibold mb-4">Current Menu Items</h3>
+        
+        {menuLoading && (
+          <div className="flex justify-center items-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+          </div>
+        )}
+        
+        {menuError && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <strong className="font-bold">Error: </strong>
+            <span className="block sm:inline">{menuError}</span>
+          </div>
+        )}
+        
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
