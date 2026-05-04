@@ -11,6 +11,7 @@ const Menu = () => {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedSizes, setSelectedSizes] = useState({});
+  const [menuCache, setMenuCache] = useState(null);
   const { addToCart, items } = useCart();
 
   const handleSizeChange = (itemId, sizeData) => {
@@ -21,13 +22,26 @@ const Menu = () => {
     try {
       setLoading(true);
       
+      // Use cache if available
+      if (menuCache) {
+        const filteredItems = selectedCategory === 'all' 
+          ? menuCache 
+          : menuCache.filter(item => item.category === selectedCategory);
+        setMenuItems(filteredItems);
+        setCategories([...new Set(menuCache.map(item => item.category))]);
+        setLoading(false);
+        return;
+      }
+      
       console.log('Fetching menu from:', api.defaults.baseURL);
-      // Always fetch all menu items to keep categories consistent
       const response = await api.get('/api/menu');
       
       console.log('Menu Data received:', response.data);
       console.log('Data length:', response.data?.length);
       console.log('Selected category:', selectedCategory);
+      
+      // Cache all items
+      setMenuCache(response.data);
       
       // Extract unique categories from all items
       const uniqueCategories = [...new Set(response.data.map(item => item.category))];
@@ -46,16 +60,16 @@ const Menu = () => {
     } finally {
       setLoading(false);
     }
-  }, [selectedCategory]);
+  }, [selectedCategory, menuCache]);
 
   useEffect(() => {
     fetchMenuItems();
   }, [selectedCategory]);
 
-  const handleAddToCart = async (menuItemId, itemName) => {
+  const handleAddToCart = async (menuItemId, itemName, itemPrice, itemImage) => {
     try {
       const selectedSize = selectedSizes[menuItemId] || null;
-      await addToCart(menuItemId, 1, selectedSize);
+      await addToCart(menuItemId, 1, selectedSize, itemPrice, itemName, itemImage);
       Swal.fire({
         icon: 'success',
         title: 'Added to Cart!',
@@ -261,29 +275,34 @@ const Menu = () => {
                   )}
                   
                   {/* Add to Cart Button */}
-                  <div className="mt-3">
-                    <button
-                      onClick={() => handleAddToCart(item._id, item.name)}
-                      disabled={!item.availability}
-                      className={`w-full py-2 rounded-md text-sm font-medium transition-all duration-300 ${
-                        item.availability
-                          ? 'bg-green-600 text-white hover:bg-green-700'
-                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      }`}
-                    >
-                      <div className="flex items-center justify-center">
-                        {item.availability ? (
-                          <>
-                            🛒 Add to Cart
-                          </>
-                        ) : (
-                          <>
-                            ❌ Out of Stock
-                          </>
-                        )}
-                      </div>
-                    </button>
-                  </div>
+                   <div className="mt-3">
+                     <button
+                       onClick={() => handleAddToCart(
+                         item._id, 
+                         item.name, 
+                         selectedSizes[item._id] ? selectedSizes[item._id].price : item.price,
+                         item.imageURL
+                       )}
+                       disabled={!item.availability}
+                       className={`w-full py-2 rounded-md text-sm font-medium transition-all duration-300 ${
+                         item.availability
+                           ? 'bg-green-600 text-white hover:bg-green-700'
+                           : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                       }`}
+                     >
+                       <div className="flex items-center justify-center">
+                         {item.availability ? (
+                           <>
+                             🛒 Add to Cart
+                           </>
+                         ) : (
+                           <>
+                             ❌ Out of Stock
+                           </>
+                         )}
+                       </div>
+                     </button>
+                   </div>
                 </div>
               </div>
             ))}

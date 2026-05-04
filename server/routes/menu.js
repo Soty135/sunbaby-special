@@ -7,8 +7,20 @@ const adminAuth = require('../middleware/adminAuth');
 
 const router = express.Router();
 
-// Use memory storage for file uploads (works better in containerized environments)
-const storage = multer.memoryStorage();
+// Use disk storage for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, '../uploads');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(file.originalname)}`;
+    cb(null, uniqueName);
+  }
+});
 
 const upload = multer({
   storage,
@@ -80,16 +92,14 @@ router.post('/', adminAuth, upload.single('image'), async (req, res) => {
 
     let finalImageURL = '';
 
-    // Handle file upload - convert to Base64
+    // Handle file upload - save to disk
     if (req.file) {
-      const base64 = req.file.buffer.toString('base64');
-      const mimeType = req.file.mimetype;
-      finalImageURL = `data:${mimeType};base64,${base64}`;
+      finalImageURL = `/uploads/${req.file.filename}`;
     } else if (imageURL && imageURL.startsWith('data:')) {
-      // Already Base64
+      // Keep base64 for backward compatibility with existing items
       finalImageURL = imageURL;
-    } else if (imageURL && !imageURL.startsWith('http')) {
-      // Keep existing path for backwards compatibility
+    } else if (imageURL) {
+      // Keep existing path or new URL
       finalImageURL = imageURL;
     }
 
@@ -138,13 +148,11 @@ router.put('/:id', adminAuth, upload.single('image'), async (req, res) => {
       availability: availability !== 'false'
     };
 
-    // Handle file upload - convert to Base64
+    // Handle file upload - save to disk
     if (req.file) {
-      const base64 = req.file.buffer.toString('base64');
-      const mimeType = req.file.mimetype;
-      updateData.imageURL = `data:${mimeType};base64,${base64}`;
+      updateData.imageURL = `/uploads/${req.file.filename}`;
     } else if (imageURL && imageURL.startsWith('data:')) {
-      // Already Base64
+      // Keep base64 for backward compatibility with existing items
       updateData.imageURL = imageURL;
     } else if (imageURL !== undefined) {
       // Keep existing path or new URL

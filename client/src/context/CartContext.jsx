@@ -110,7 +110,7 @@ export const CartProvider = ({ children }) => {
     }
   }, []);
 
-  const addToCart = useCallback(async (menuItemId, quantity = 1, selectedSize = null) => {
+  const addToCart = useCallback(async (menuItemId, quantity = 1, selectedSize = null, itemPrice = null, itemName = null, itemImage = null) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       
@@ -126,27 +126,30 @@ export const CartProvider = ({ children }) => {
         item.menuItem.name !== 'Error Loading Item'
       );
       
-      // Fetch actual menu item details from API
-      let menuItem;
-      try {
-        const response = await api.get('/api/menu');
-        const allMenuItems = response.data;
-        menuItem = allMenuItems.find(item => item._id === menuItemId);
-        
-        if (!menuItem || menuItem.price <= 0) {
-          throw new Error('Menu item not found or has no price');
+      // Get price and item details - either from params or fetch single item
+      let itemPriceToUse = itemPrice;
+      let itemNameToUse = itemName;
+      let itemImageToUse = itemImage;
+      
+      if (!itemPriceToUse || !itemNameToUse) {
+        try {
+          const response = await api.get(`/api/menu/${menuItemId}`);
+          const menuItem = response.data;
+          itemPriceToUse = menuItem.price;
+          itemNameToUse = menuItem.name;
+          itemImageToUse = menuItem.imageURL;
+        } catch (fetchError) {
+          console.error('Failed to fetch menu item:', fetchError);
+          throw new Error('Failed to load menu item details');
         }
-      } catch (fetchError) {
-        console.error('Failed to fetch menu items:', fetchError);
-        throw new Error('Failed to load menu item details');
       }
       
       // Determine price and size info
-      let itemPrice = menuItem.price;
+      let finalPrice = itemPriceToUse;
       let itemSize = null;
       
       if (selectedSize) {
-        itemPrice = selectedSize.price;
+        finalPrice = selectedSize.price;
         itemSize = selectedSize.size;
       }
       
@@ -161,12 +164,12 @@ export const CartProvider = ({ children }) => {
         currentCart.items.push({
           menuItemId: menuItemId,
           quantity,
-          price: itemPrice,
+          price: finalPrice,
           size: itemSize,
           menuItem: {
-            _id: menuItem._id,
-            name: menuItem.name,
-            imageURL: menuItem.imageURL
+            _id: menuItemId,
+            name: itemNameToUse,
+            imageURL: itemImageToUse
           }
         });
       }

@@ -359,7 +359,7 @@ const AdminDashboard = () => {
           <div className="md:col-span-2 space-y-2">
             <label className="block text-sm font-medium text-gray-700">Size Options (Optional)</label>
             {menuForm.sizes.map((sizeItem, index) => (
-              <div key={index} className="flex gap-2 items-center">
+              <div key={index} className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
                 <input
                   type="text"
                   placeholder="Size name (e.g., Large Pan)"
@@ -369,7 +369,7 @@ const AdminDashboard = () => {
                     newSizes[index].size = e.target.value;
                     setMenuForm({...menuForm, sizes: newSizes});
                   }}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 w-full sm:w-auto"
                 />
                 <input
                   type="number"
@@ -381,7 +381,7 @@ const AdminDashboard = () => {
                     newSizes[index].price = e.target.value;
                     setMenuForm({...menuForm, sizes: newSizes});
                   }}
-                  className="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full sm:w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                 />
                 <button
                   type="button"
@@ -389,9 +389,10 @@ const AdminDashboard = () => {
                     const newSizes = menuForm.sizes.filter((_, i) => i !== index);
                     setMenuForm({...menuForm, sizes: newSizes});
                   }}
-                  className="text-red-600 hover:text-red-800 text-sm"
+                  className="text-red-600 hover:text-red-800 p-1 font-bold text-lg self-end sm:self-center"
+                  title="Remove size"
                 >
-                  Remove
+                  ×
                 </button>
               </div>
             ))}
