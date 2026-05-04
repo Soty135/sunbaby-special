@@ -18,7 +18,8 @@ const AdminDashboard = () => {
     description: '',
     price: '',
     category: 'main',
-    imageURL: ''
+    imageURL: '',
+    sizes: []
   });
   
   // Gallery form state
@@ -77,10 +78,16 @@ const AdminDashboard = () => {
       
       // Add all form fields
       Object.keys(menuForm).forEach(key => {
-        if (key !== 'imageURL') {
+        if (key !== 'imageURL' && key !== 'sizes') {
           formData.append(key, menuForm[key]);
         }
       });
+      
+      // Add sizes as JSON string, filtering out empty entries
+      const validSizes = menuForm.sizes.filter(s => s.size && s.price);
+      if (validSizes.length > 0) {
+        formData.append('sizes', JSON.stringify(validSizes));
+      }
       
       // Add image file if selected
       if (menuImageFile) {
@@ -104,7 +111,7 @@ const AdminDashboard = () => {
         });
       }
       
-      setMenuForm({ name: '', description: '', price: '', category: 'main', imageURL: '' });
+      setMenuForm({ name: '', description: '', price: '', category: 'main', imageURL: '', sizes: [] });
       setMenuImageFile(null);
       setPreviewUrl('');
       fetchMenuItems();
@@ -165,10 +172,11 @@ const AdminDashboard = () => {
     setMenuForm({
       _id: item._id,
       name: item.name,
-      description: item.description,
+      description: item.description || '',
       price: item.price,
       category: item.category,
-      imageURL: item.imageURL || ''
+      imageURL: item.imageURL || '',
+      sizes: item.sizes || []
     });
     setPreviewUrl(item.imageURL ? getMediaUrl(item.imageURL) : '');
     setMenuImageFile(null);
@@ -347,6 +355,57 @@ const AdminDashboard = () => {
             </div>
           </div>
           
+          {/* Size Options */}
+          <div className="md:col-span-2 space-y-2">
+            <label className="block text-sm font-medium text-gray-700">Size Options (Optional)</label>
+            {menuForm.sizes.map((sizeItem, index) => (
+              <div key={index} className="flex gap-2 items-center">
+                <input
+                  type="text"
+                  placeholder="Size name (e.g., Large Pan)"
+                  value={sizeItem.size}
+                  onChange={(e) => {
+                    const newSizes = [...menuForm.sizes];
+                    newSizes[index].size = e.target.value;
+                    setMenuForm({...menuForm, sizes: newSizes});
+                  }}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                />
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="Price"
+                  value={sizeItem.price}
+                  onChange={(e) => {
+                    const newSizes = [...menuForm.sizes];
+                    newSizes[index].price = e.target.value;
+                    setMenuForm({...menuForm, sizes: newSizes});
+                  }}
+                  className="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newSizes = menuForm.sizes.filter((_, i) => i !== index);
+                    setMenuForm({...menuForm, sizes: newSizes});
+                  }}
+                  className="text-red-600 hover:text-red-800 text-sm"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => {
+                setMenuForm({...menuForm, sizes: [...menuForm.sizes, {size: '', price: ''}]});
+              }}
+              className="text-sm bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700"
+            >
+              + Add Size
+            </button>
+          </div>
+          
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
             <select
@@ -436,19 +495,19 @@ const AdminDashboard = () => {
             >
               {loading ? 'Saving...' : (menuForm._id ? 'Update Item' : 'Add Item')}
             </button>
-            {menuForm._id && (
-              <button
-                type="button"
-                onClick={() => {
-                  setMenuForm({ name: '', description: '', price: '', category: 'main', imageURL: '' });
-                  setMenuImageFile(null);
-                  setPreviewUrl('');
-                }}
-                className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
-              >
-                Cancel
-              </button>
-            )}
+             {menuForm._id && (
+               <button
+                 type="button"
+                 onClick={() => {
+                   setMenuForm({ name: '', description: '', price: '', category: 'main', imageURL: '', sizes: [] });
+                   setMenuImageFile(null);
+                   setPreviewUrl('');
+                 }}
+                 className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
+               >
+                 Cancel
+               </button>
+             )}
           </div>
         </form>
       </div>
@@ -472,7 +531,11 @@ const AdminDashboard = () => {
                 <tr key={item._id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.name}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.category}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.price}</td>
+                  <td className="px-6 py-4 text-sm text-gray-900">
+                    {item.sizes && item.sizes.length > 0 
+                      ? item.sizes.map((s, i) => `${s.size}: $${s.price}`).join(', ')
+                      : `$${item.price}`}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <button
                       onClick={() => toggleAvailability(item._id, item.availability)}

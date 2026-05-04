@@ -110,7 +110,7 @@ export const CartProvider = ({ children }) => {
     }
   }, []);
 
-  const addToCart = useCallback(async (menuItemId, quantity = 1) => {
+  const addToCart = useCallback(async (menuItemId, quantity = 1, selectedSize = null) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       
@@ -126,36 +126,49 @@ export const CartProvider = ({ children }) => {
         item.menuItem.name !== 'Error Loading Item'
       );
       
-      // Add item to cart
-      const existingItemIndex = currentCart.items.findIndex(item => item.menuItemId === menuItemId);
+      // Fetch actual menu item details from API
+      let menuItem;
+      try {
+        const response = await api.get('/api/menu');
+        const allMenuItems = response.data;
+        menuItem = allMenuItems.find(item => item._id === menuItemId);
+        
+        if (!menuItem || menuItem.price <= 0) {
+          throw new Error('Menu item not found or has no price');
+        }
+      } catch (fetchError) {
+        console.error('Failed to fetch menu items:', fetchError);
+        throw new Error('Failed to load menu item details');
+      }
+      
+      // Determine price and size info
+      let itemPrice = menuItem.price;
+      let itemSize = null;
+      
+      if (selectedSize) {
+        itemPrice = selectedSize.price;
+        itemSize = selectedSize.size;
+      }
+      
+      // Check if same item with same size exists
+      const existingItemIndex = currentCart.items.findIndex(item => 
+        item.menuItemId === menuItemId && item.size === itemSize
+      );
       
       if (existingItemIndex >= 0) {
         currentCart.items[existingItemIndex].quantity += quantity;
       } else {
-        // Fetch actual menu item details from API
-        try {
-          const response = await api.get('/api/menu');
-          const allMenuItems = response.data;
-          const menuItem = allMenuItems.find(item => item._id === menuItemId);
-          
-          if (menuItem && menuItem.price > 0) {
-            currentCart.items.push({
-              menuItemId: menuItemId,
-              quantity,
-              price: menuItem.price,
-              menuItem: {
-                _id: menuItem._id,
-                name: menuItem.name,
-                imageURL: menuItem.imageURL
-              }
-            });
-          } else {
-            throw new Error('Menu item not found or has no price');
+        currentCart.items.push({
+          menuItemId: menuItemId,
+          quantity,
+          price: itemPrice,
+          size: itemSize,
+          menuItem: {
+            _id: menuItem._id,
+            name: menuItem.name,
+            imageURL: menuItem.imageURL
           }
-        } catch (fetchError) {
-          console.error('Failed to fetch menu items:', fetchError);
-          throw new Error('Failed to load menu item details');
-        }
+        });
       }
       
       // Update total

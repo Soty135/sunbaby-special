@@ -10,7 +10,12 @@ const Menu = () => {
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedSizes, setSelectedSizes] = useState({});
   const { addToCart, items } = useCart();
+
+  const handleSizeChange = (itemId, sizeData) => {
+    setSelectedSizes({...selectedSizes, [itemId]: sizeData});
+  };
 
   const fetchMenuItems = useCallback(async () => {
     try {
@@ -49,11 +54,12 @@ const Menu = () => {
 
   const handleAddToCart = async (menuItemId, itemName) => {
     try {
-      await addToCart(menuItemId);
+      const selectedSize = selectedSizes[menuItemId] || null;
+      await addToCart(menuItemId, 1, selectedSize);
       Swal.fire({
         icon: 'success',
         title: 'Added to Cart!',
-        text: `${itemName} has been added to your cart.`,
+        text: `${itemName}${selectedSize ? ` (${selectedSize.size})` : ''} has been added to your cart.`,
         timer: 2000,
         showConfirmButton: false,
         toast: true,
@@ -185,22 +191,37 @@ const Menu = () => {
                 
                 {/* Item Details */}
                 <div className="p-3">
-                  <div className="mb-2">
-                    <h3 className="text-base font-bold text-gray-900">{item.name}</h3>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-lg font-bold text-green-600">${item.price.toFixed(2)}</span>
-                      <div className="flex flex-wrap gap-1">
-                        {item.preparationTime && (
-                          <span className="bg-blue-100 text-blue-800 text-xs px-1.5 py-0.5 rounded-full">
-                            ⏱️ {item.preparationTime} min
-                          </span>
-                        )}
-                        <span className="bg-green-100 text-green-800 text-xs px-1.5 py-0.5 rounded-full">
-                          {item.category}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                 <div className="mb-2">
+                     <h3 className="text-base font-bold text-gray-900">{item.name}</h3>
+                     <div className="flex items-center space-x-2">
+                       {item.sizes && item.sizes.length > 0 ? (
+                         <select 
+                           className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-green-500"
+                           onChange={(e) => handleSizeChange(item._id, e.target.value ? JSON.parse(e.target.value) : null)}
+                           defaultValue=""
+                         >
+                           <option value="" disabled>Select size...</option>
+                           {item.sizes.map((sizeItem, idx) => (
+                             <option key={idx} value={JSON.stringify({size: sizeItem.size, price: sizeItem.price})}>
+                               {sizeItem.size} - ${sizeItem.price.toFixed(2)}
+                             </option>
+                           ))}
+                         </select>
+                       ) : (
+                         <span className="text-lg font-bold text-green-600">${item.price.toFixed(2)}</span>
+                       )}
+                       <div className="flex flex-wrap gap-1">
+                         {item.preparationTime && (
+                           <span className="bg-blue-100 text-blue-800 text-xs px-1.5 py-0.5 rounded-full">
+                             ⏱️ {item.preparationTime} min
+                           </span>
+                         )}
+                         <span className="bg-green-100 text-green-800 text-xs px-1.5 py-0.5 rounded-full">
+                           {item.category}
+                         </span>
+                       </div>
+                     </div>
+                   </div>
                   
                   {/* Badges and Info */}
                   <div className="flex flex-wrap gap-1 mb-2">

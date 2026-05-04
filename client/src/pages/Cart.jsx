@@ -59,7 +59,7 @@ const Cart = () => {
 
   const generateWhatsAppMessage = () => {
     const orderList = items.map((item, index) => 
-      `${index + 1}. ${item.quantity}x ${item.menuItem?.name || 'Item'} - $${(item.price * item.quantity).toFixed(2)}`
+      `${index + 1}. ${item.quantity}x ${item.menuItem?.name || 'Item'}${item.size ? ` (${item.size})` : ''} - $${(item.price * item.quantity).toFixed(2)}`
     ).join('\n');
     
     const message = `🍲 *New Order from Sunbaby Special*
@@ -184,10 +184,13 @@ Please confirm my order. Thank you! 🙏`;
                       </div>
                       
                       {/* Name and Price */}
-                      <div className="flex-grow w-full md:w-auto">
-                        <h3 className="font-semibold text-gray-800 text-sm md:text-base">{item.menuItem?.name || 'Item'}</h3>
-                        <p className="text-gray-600 text-xs md:text-sm">${item.price?.toFixed(2) || '0.00'} each</p>
-                      </div>
+                       <div className="flex-grow w-full md:w-auto">
+                         <h3 className="font-semibold text-gray-800 text-sm md:text-base">{item.menuItem?.name || 'Item'}</h3>
+                         <p className="text-gray-600 text-xs md:text-sm">
+                           ${item.price?.toFixed(2) || '0.00'} each
+                           {item.size && <span className="ml-2 bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs">{item.size}</span>}
+                         </p>
+                       </div>
                       
                       {/* Quantity Controls */}
                       <div className="flex items-center justify-between w-full md:w-auto gap-2 mt-2 md:mt-0">

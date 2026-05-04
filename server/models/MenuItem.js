@@ -15,6 +15,10 @@ const menuItemSchema = new mongoose.Schema({
     required: [true, 'Price is required'],
     min: [0, 'Price cannot be negative']
   },
+  sizes: [{
+    size: { type: String, required: true, trim: true },
+    price: { type: Number, required: true, min: 0 }
+  }],
   category: {
     type: String,
     required: [true, 'Category is required'],

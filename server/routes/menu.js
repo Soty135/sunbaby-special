@@ -70,7 +70,7 @@ router.post('/', adminAuth, upload.single('image'), async (req, res) => {
   console.log('req.body:', req.body);
   console.log('req.file:', req.file ? 'file present' : 'no file');
   try {
-    const { name, description, price, category, availability = true, imageURL } = req.body;
+    const { name, description, price, category, availability = true, imageURL, sizes } = req.body;
 
     if (!name || !description || !price || !category) {
       return res.status(400).json({ 
@@ -93,13 +93,24 @@ router.post('/', adminAuth, upload.single('image'), async (req, res) => {
       finalImageURL = imageURL;
     }
 
+    // Parse sizes if provided
+    let parsedSizes = [];
+    if (sizes) {
+      try {
+        parsedSizes = typeof sizes === 'string' ? JSON.parse(sizes) : sizes;
+      } catch (e) {
+        console.error('Error parsing sizes:', e);
+      }
+    }
+
     const menuItem = new MenuItem({
       name,
       description,
       price: parseFloat(price),
       category,
       availability,
-      imageURL: finalImageURL
+      imageURL: finalImageURL,
+      sizes: parsedSizes
     });
 
     console.log('Saving menu item...');
@@ -117,7 +128,7 @@ router.post('/', adminAuth, upload.single('image'), async (req, res) => {
 // Update menu item (admin only)
 router.put('/:id', adminAuth, upload.single('image'), async (req, res) => {
   try {
-    const { name, description, price, category, availability, imageURL } = req.body;
+    const { name, description, price, category, availability, imageURL, sizes } = req.body;
     
     const updateData = {
       name,
@@ -138,6 +149,16 @@ router.put('/:id', adminAuth, upload.single('image'), async (req, res) => {
     } else if (imageURL !== undefined) {
       // Keep existing path or new URL
       updateData.imageURL = imageURL;
+    }
+
+    // Parse sizes if provided
+    if (sizes !== undefined) {
+      try {
+        updateData.sizes = typeof sizes === 'string' ? JSON.parse(sizes) : sizes;
+      } catch (e) {
+        console.error('Error parsing sizes:', e);
+        updateData.sizes = [];
+      }
     }
 
     const menuItem = await MenuItem.findByIdAndUpdate(
