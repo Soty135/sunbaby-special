@@ -189,28 +189,41 @@ const AdminDashboard = () => {
     });
     setPreviewUrl(item.imageURL ? getMediaUrl(item.imageURL) : '');
     setMenuImageFile(null);
-    // Scroll to top so user can see the form
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll to top so user can see the form - instant for better mobile support
+    window.scrollTo(0, 0);
+    // Fallback for some mobile browsers
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   };
 
   const toggleAvailability = async (id, currentAvailability) => {
+    // Optimistically update UI immediately
+    setMenuItems(prevItems => 
+      prevItems.map(item => 
+        item._id === id ? {...item, availability: !item.availability} : item
+      )
+    );
+    
     try {
       const response = await api.patch(`/api/menu/${id}/toggle-availability`);
-      fetchMenuItems();
-      Swal.fire({
-        icon: 'success',
-        title: 'Availability Updated',
-        text: `Item is now ${response.data.availability ? 'available' : 'unavailable'}!`,
-        timer: 2000,
-        showConfirmButton: false
-      });
+      
+      // Update with server response to ensure consistency
+      setMenuItems(prevItems => 
+        prevItems.map(item => 
+          item._id === id ? {...item, availability: response.data.availability} : item
+        )
+      );
+      
+      // No SweetAlert needed - UI already updated instantly
     } catch (error) {
+      // Rollback on error
+      setMenuItems(prevItems => 
+        prevItems.map(item => 
+          item._id === id ? {...item, availability: currentAvailability} : item
+        )
+      );
+      
       console.error('Failed to toggle availability:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to update availability.',
-      });
     }
   };
 
