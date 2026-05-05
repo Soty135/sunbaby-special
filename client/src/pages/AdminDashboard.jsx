@@ -118,6 +118,8 @@ const AdminDashboard = () => {
       setMenuImageFile(null);
       setPreviewUrl('');
       fetchMenuItems();
+      // Clear menu cache so Menu page reflects changes
+      localStorage.removeItem('menuCache');
       Swal.fire({
         icon: 'success',
         title: 'Saved!',
@@ -158,6 +160,8 @@ const AdminDashboard = () => {
     try {
       await api.delete(`/api/menu/${id}`);
       fetchMenuItems();
+      // Clear menu cache so Menu page reflects changes
+      localStorage.removeItem('menuCache');
       Swal.fire({
         icon: 'success',
         title: 'Deleted!',
@@ -166,14 +170,9 @@ const AdminDashboard = () => {
         showConfirmButton: false
       });
     } catch (error) {
-      // Rollback on error
+      // rollback on error
       setMenuItems(previousItems);
       console.error('Failed to delete menu item:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to delete menu item.',
-      });
     }
   };
 
@@ -207,14 +206,17 @@ const AdminDashboard = () => {
     try {
       const response = await api.patch(`/api/menu/${id}/toggle-availability`);
       
-      // Update with server response to ensure consistency
+      // Update with server response
       setMenuItems(prevItems => 
         prevItems.map(item => 
           item._id === id ? {...item, availability: response.data.availability} : item
         )
       );
       
-      // No SweetAlert needed - UI already updated instantly
+      // Clear menu cache so Menu page reflects changes
+      localStorage.removeItem('menuCache');
+      
+      // No SweetAlert - UI already updated instantly
     } catch (error) {
       // Rollback on error
       setMenuItems(prevItems => 
