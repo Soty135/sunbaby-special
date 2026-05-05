@@ -7,20 +7,8 @@ const adminAuth = require('../middleware/adminAuth');
 
 const router = express.Router();
 
-// Use disk storage for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, '../uploads');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(file.originalname)}`;
-    cb(null, uniqueName);
-  }
-});
+// Use memory storage for file uploads (convert to Base64 for persistence)
+const storage = multer.memoryStorage();
 
 const upload = multer({
   storage,
@@ -92,11 +80,13 @@ router.post('/', adminAuth, upload.single('image'), async (req, res) => {
 
     let finalImageURL = '';
 
-    // Handle file upload - save to disk
+    // Handle file upload - convert to Base64
     if (req.file) {
-      finalImageURL = `/uploads/${req.file.filename}`;
+      const base64 = req.file.buffer.toString('base64');
+      const mimetype = req.file.mimetype;
+      finalImageURL = `data:${mimetype};base64,${base64}`;
     } else if (imageURL && imageURL.startsWith('data:')) {
-      // Keep base64 for backward compatibility with existing items
+      // Already Base64
       finalImageURL = imageURL;
     } else if (imageURL) {
       // Keep existing path or new URL
@@ -148,11 +138,13 @@ router.put('/:id', adminAuth, upload.single('image'), async (req, res) => {
       availability: availability !== 'false'
     };
 
-    // Handle file upload - save to disk
+    // Handle file upload - convert to Base64
     if (req.file) {
-      updateData.imageURL = `/uploads/${req.file.filename}`;
+      const base64 = req.file.buffer.toString('base64');
+      const mimetype = req.file.mimetype;
+      updateData.imageURL = `data:${mimetype};base64,${base64}`;
     } else if (imageURL && imageURL.startsWith('data:')) {
-      // Keep base64 for backward compatibility with existing items
+      // Already Base64
       updateData.imageURL = imageURL;
     } else if (imageURL !== undefined) {
       // Keep existing path or new URL
