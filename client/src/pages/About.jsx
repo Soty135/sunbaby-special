@@ -20,7 +20,7 @@ const About = () => {
               <img
                 src="/images/chef.jpeg"
                 alt="Sunbaby Special"
-                className="rounded-full w-48 h-48 mx-auto object-cover"
+                className="rounded-full w-48 h-48 mx-auto object-cover object-top"
               />
             </div>
             <div className="md:col-span-2">
