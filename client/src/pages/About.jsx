@@ -17,13 +17,15 @@ const About = () => {
           <h2 className="text-2xl font-semibold text-gray-800 mb-6">Our Founder</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
             <div className="md:col-span-1">
-              <div className="bg-gray-200 rounded-full w-48 h-48 mx-auto flex items-center justify-center">
-                <span className="text-6xl">👨‍🍳</span>
-              </div>
+              <img
+                src="/images/chef.jpeg"
+                alt="Sunbaby Special"
+                className="rounded-full w-48 h-48 mx-auto object-cover"
+              />
             </div>
             <div className="md:col-span-2">
               <h3 className="text-xl font-semibold text-gray-800 mb-4">
-                Chef [Founder's Name]
+                Sunbaby Special
               </h3>
               <p className="text-gray-600 leading-relaxed mb-4">
                 With over 15 years of culinary experience, our founder has a passion for creating 
