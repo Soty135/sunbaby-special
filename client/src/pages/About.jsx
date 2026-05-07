@@ -123,7 +123,7 @@ const About = () => {
             Thank you for choosing Sunbaby Special. We look forward to serving you!
           </p>
           <button
-            onClick={() => window.open('https://wa.me/1234567890?text=Hello! I would like to know more about Sunbaby Special.', '_blank')}
+            onClick={() => window.open('https://wa.me/12404180905?text=Hello! I would like to know more about Sunbaby Special.', '_blank')}
             className="bg-green-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-green-700 transition-colors"
           >
             Contact Us on WhatsApp

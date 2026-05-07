@@ -30,8 +30,8 @@ const Footer = () => {
             <h3 className="text-sm md:text-base font-semibold mb-2">Contact Us</h3>
             <div className="space-y-1 text-xs md:text-sm text-gray-300">
               <p>📍 Maryland, USA</p>
-              <p>📞 +234 703 046 2122</p>
-              <p>✉️ info@sunbabyspecial.com</p>
+              <p>📞 +1(240)418-0905</p>
+              <p>✉️ Sunbabyspecials001@gmail.com</p>
               <div className="mt-2">
                 <p className="font-semibold mb-1">Follow Us:</p>
                 <div className="flex space-x-3">

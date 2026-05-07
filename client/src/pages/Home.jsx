@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 const Home = () => {
   const handleWhatsAppOrder = () => {
-    const phoneNumber = '2347030462122';
+    const phoneNumber = '12404180905';
     const message = encodeURIComponent('Hey Sunbaby Special, I\'d like to place a special order.');
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
   };

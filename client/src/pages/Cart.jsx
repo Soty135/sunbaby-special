@@ -70,7 +70,7 @@ ${orderList}
 
 Please confirm my order. Thank you! 🙏`;
     
-    const phoneNumber = '2347030462122';
+    const phoneNumber = '12404180905';
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
