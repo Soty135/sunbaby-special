@@ -1,25 +1,21 @@
 const express = require('express');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 const MenuItem = require('../models/MenuItem');
 const adminAuth = require('../middleware/adminAuth');
+const { menuStorage } = require('../config/cloudinary');
 
 const router = express.Router();
 
-// Use memory storage for file uploads (convert to Base64 for persistence)
-const storage = multer.memoryStorage();
-
 const upload = multer({
-  storage,
+  storage: menuStorage,
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
+    fileSize: 5 * 1024 * 1024,
   },
   fileFilter: (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|gif|webp/;
     const allowedExtensions = /\.(jpeg|jpg|png|gif|webp)$/i;
-    
-    const extname = allowedExtensions.test(path.extname(file.originalname).toLowerCase());
+
+    const extname = allowedExtensions.test(file.originalname.toLowerCase());
     const mimetype = allowedTypes.test(file.mimetype);
 
     if (mimetype && extname) {
@@ -27,73 +23,56 @@ const upload = multer({
     } else {
       cb(new Error('Only image files are allowed'));
     }
-  }
+  },
 });
 
-// Get all menu items (public)
 router.get('/', async (req, res) => {
-  console.log('GET /api/menu - Fetching menu items');
   try {
     const { category, available } = req.query;
     let filter = {};
-    
+
     if (category) filter.category = category;
     if (available !== undefined) filter.availability = available === 'true';
 
     const menuItems = await MenuItem.find(filter).sort({ createdAt: -1 });
-    console.log('Found menu items:', menuItems.length);
     res.json(menuItems);
   } catch (error) {
-    console.error('Error fetching menu items:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
-// Get single menu item (public)
 router.get('/:id', async (req, res) => {
   try {
     const menuItem = await MenuItem.findById(req.params.id);
-    
+
     if (!menuItem) {
       return res.status(404).json({ message: 'Menu item not found' });
     }
-    
+
     res.json(menuItem);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
-// Create menu item (admin only)
 router.post('/', adminAuth, upload.single('image'), async (req, res) => {
-  console.log('POST /api/menu - Creating menu item');
-  console.log('req.body:', req.body);
-  console.log('req.file:', req.file ? 'file present' : 'no file');
   try {
     const { name, description, price, category, availability = true, imageURL, sizes } = req.body;
 
     if (!name || !description || !price || !category) {
-      return res.status(400).json({ 
-        message: 'Missing required fields'
+      return res.status(400).json({
+        message: 'Missing required fields',
       });
     }
 
     let finalImageURL = '';
 
-    // Handle file upload - convert to Base64
     if (req.file) {
-      const base64 = req.file.buffer.toString('base64');
-      const mimetype = req.file.mimetype;
-      finalImageURL = `data:${mimetype};base64,${base64}`;
-    } else if (imageURL && imageURL.startsWith('data:')) {
-      // Already Base64
-      finalImageURL = imageURL;
-    } else if (imageURL) {
-      // Keep existing path or new URL
+      finalImageURL = req.file.path;
+    } else if (imageURL && imageURL.startsWith('http')) {
       finalImageURL = imageURL;
     }
 
-    // Parse sizes if provided
     let parsedSizes = [];
     if (sizes) {
       try {
@@ -110,48 +89,34 @@ router.post('/', adminAuth, upload.single('image'), async (req, res) => {
       category,
       availability,
       imageURL: finalImageURL,
-      sizes: parsedSizes
+      sizes: parsedSizes,
     });
 
-    console.log('Saving menu item...');
     await menuItem.save();
-    console.log('Menu item saved:', menuItem._id);
-    console.log('Sending response...');
     res.status(201).json(menuItem);
-    console.log('Response sent');
   } catch (error) {
-    console.error('Error creating menu item:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
-// Update menu item (admin only)
 router.put('/:id', adminAuth, upload.single('image'), async (req, res) => {
   try {
     const { name, description, price, category, availability, imageURL, sizes } = req.body;
-    
+
     const updateData = {
       name,
       description,
       price: parseFloat(price),
       category,
-      availability: availability !== 'false'
+      availability: availability !== 'false',
     };
 
-    // Handle file upload - convert to Base64
     if (req.file) {
-      const base64 = req.file.buffer.toString('base64');
-      const mimetype = req.file.mimetype;
-      updateData.imageURL = `data:${mimetype};base64,${base64}`;
-    } else if (imageURL && imageURL.startsWith('data:')) {
-      // Already Base64
-      updateData.imageURL = imageURL;
+      updateData.imageURL = req.file.path;
     } else if (imageURL !== undefined) {
-      // Keep existing path or new URL
       updateData.imageURL = imageURL;
     }
 
-    // Parse sizes if provided
     if (sizes !== undefined) {
       try {
         updateData.sizes = typeof sizes === 'string' ? JSON.parse(sizes) : sizes;
@@ -170,15 +135,13 @@ router.put('/:id', adminAuth, upload.single('image'), async (req, res) => {
     if (!menuItem) {
       return res.status(404).json({ message: 'Menu item not found' });
     }
-    
+
     res.json(menuItem);
   } catch (error) {
-    console.error('Error updating menu item:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
-// Delete menu item (admin only)
 router.delete('/:id', adminAuth, async (req, res) => {
   try {
     const menuItem = await MenuItem.findByIdAndDelete(req.params.id);
@@ -186,15 +149,13 @@ router.delete('/:id', adminAuth, async (req, res) => {
     if (!menuItem) {
       return res.status(404).json({ message: 'Menu item not found' });
     }
-    
+
     res.json({ message: 'Menu item deleted successfully' });
   } catch (error) {
-    console.error('Error deleting menu item:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
-// Toggle menu item availability (admin only)
 router.patch('/:id/toggle-availability', adminAuth, async (req, res) => {
   try {
     const menuItem = await MenuItem.findById(req.params.id);
@@ -202,13 +163,12 @@ router.patch('/:id/toggle-availability', adminAuth, async (req, res) => {
     if (!menuItem) {
       return res.status(404).json({ message: 'Menu item not found' });
     }
-    
+
     menuItem.availability = !menuItem.availability;
     await menuItem.save();
-    
+
     res.json(menuItem);
   } catch (error) {
-    console.error('Error toggling menu item availability:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
