@@ -219,10 +219,10 @@ const Menu = () => {
                 <div className="p-3">
                  <div className="mb-2">
                      <h3 className="text-base font-bold text-gray-900">{item.name}</h3>
-<div className="flex items-center flex-wrap gap-2">
+<div className="flex items-center flex-wrap gap-2 min-w-0">
                         {item.sizes && item.sizes.length > 0 ? (
-                         <select 
-                           className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-green-500"
+                          <select 
+                            className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-green-500 max-w-full"
                            onChange={(e) => handleSizeChange(item._id, e.target.value ? JSON.parse(e.target.value) : null)}
                            defaultValue=""
                          >
