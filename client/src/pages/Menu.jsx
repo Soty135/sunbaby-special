@@ -13,6 +13,7 @@ const Menu = () => {
   const [selectedSizes, setSelectedSizes] = useState({});
   const [menuCache, setMenuCache] = useState(null);
   const { addToCart, items } = useCart();
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleSizeChange = (itemId, sizeData) => {
     setSelectedSizes({...selectedSizes, [itemId]: sizeData});
@@ -88,6 +89,10 @@ const Menu = () => {
     }
   };
 
+  const filteredMenuItems = searchQuery.trim()
+    ? menuItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    : menuItems;
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -129,6 +134,18 @@ const Menu = () => {
           </Link>
         </div>
 
+        {/* Search Bar */}
+        <div className="relative max-w-md mx-auto mb-6">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+          <input
+            type="text"
+            placeholder="Search meals..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+          />
+        </div>
+
         {/* Category Filter */}
         <div className="flex flex-wrap justify-center gap-4 mb-8">
           <button
@@ -160,7 +177,7 @@ const Menu = () => {
           <div className="flex justify-center items-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
           </div>
-        ) : menuItems.length === 0 ? (
+        ) : filteredMenuItems.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🍽️</div>
             <h2 className="text-2xl font-semibold text-gray-800 mb-2">No menu items found</h2>
@@ -179,7 +196,7 @@ const Menu = () => {
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {menuItems.map((item) => (
+            {filteredMenuItems.map((item) => (
               <div key={item._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                 {/* Item Image */}
                 <div className="relative h-32 overflow-hidden">
@@ -194,11 +211,6 @@ const Menu = () => {
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gray-300 rounded-t-lg">
                       <span className="text-4xl">🍽️</span>
-                    </div>
-                  )}
-                  {item.imageURL && (
-                    <div className="absolute top-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded-full">
-                      📷 Image
                     </div>
                   )}
                 </div>
