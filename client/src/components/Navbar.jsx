@@ -69,12 +69,6 @@ const Navbar = () => {
               Menu
             </Link>
             <Link
-              to="/gallery"
-              className={`hover:text-green-200 transition-colors ${isActive('/gallery') ? 'text-green-200' : ''}`}
-            >
-              Gallery
-            </Link>
-            <Link
               to="/cart"
               className={`hover:text-green-200 transition-colors flex items-center ${isActive('/cart') ? 'text-green-200' : ''}`}
             >
@@ -153,12 +147,6 @@ const Navbar = () => {
             className={`block px-2 py-1.5 rounded text-sm font-medium hover:bg-green-600 ${isActive('/menu') ? 'bg-green-600' : ''}`}
           >
             Menu
-          </Link>
-          <Link
-            to="/gallery"
-            className={`block px-2 py-1.5 rounded text-sm font-medium hover:bg-green-600 ${isActive('/gallery') ? 'bg-green-600' : ''}`}
-          >
-            Gallery
           </Link>
           <Link
             to="/cart"

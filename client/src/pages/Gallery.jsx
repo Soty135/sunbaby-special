@@ -6,8 +6,8 @@ const VideoThumbnail = ({ src }) => {
   const [thumbnail, setThumbnail] = useState(null);
   const videoRef = useRef(null);
 
-  useEffect(() => {
-    const captureFrame = () => {
+  const captureFrame = () => {
+    try {
       if (videoRef.current) {
         const video = videoRef.current;
         const canvas = document.createElement('canvas');
@@ -17,24 +17,14 @@ const VideoThumbnail = ({ src }) => {
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         setThumbnail(canvas.toDataURL('image/jpeg', 0.8));
       }
-    };
-
-    const video = videoRef.current;
-    if (video) {
-      video.addEventListener('loadeddata', captureFrame);
-      return () => video.removeEventListener('loadeddata', captureFrame);
+    } catch (e) {
+      // Silently fail
     }
-  }, []);
+  };
 
   return (
     <>
-      <video
-        ref={videoRef}
-        src={src}
-        crossOrigin="anonymous"
-        className="hidden"
-        onLoadedData={captureFrame}
-      />
+      <video ref={videoRef} src={src} className="hidden" onLoadedData={captureFrame} />
       {thumbnail ? (
         <img src={thumbnail} alt="Video thumbnail" className="w-full h-full object-cover" />
       ) : (
@@ -128,11 +118,10 @@ const Gallery = () => {
           <div className="flex justify-center items-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
           </div>
-        ) : (
+        ) : galleryItems.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
             {galleryItems.map((item, index) => (
               <div key={`${item._id}-${index}`} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={() => handleItemClick(item)}>
-                {/* Media Content */}
                 {item.mediaType === 'image' ? (
                   <div className="aspect-square bg-gray-200">
                     {item.mediaURL && (
@@ -155,8 +144,6 @@ const Gallery = () => {
                     </div>
                   </div>
                 )}
-                
-                {/* Title and Description below media */}
                 <div className="p-1 sm:p-2">
                   <h3 className="font-semibold text-gray-800 text-xs sm:text-sm truncate">{item.title}</h3>
                   {item.description && (
@@ -166,10 +153,7 @@ const Gallery = () => {
               </div>
             ))}
           </div>
-        )}
-
-        {/* Empty State */}
-        {!loading && galleryItems.length === 0 && (
+        ) : (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🖼️</div>
             <h2 className="text-2xl font-semibold text-gray-800 mb-2">No Gallery Items</h2>
