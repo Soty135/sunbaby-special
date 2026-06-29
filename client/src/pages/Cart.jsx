@@ -172,11 +172,10 @@ Please confirm my order. Thank you! 🙏`;
                        {/* Image */}
                        <div className="w-16 h-16 md:w-20 md:h-20 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
                          {item.menuItem?.imageURL ? (
-                           <img 
-                             src={getMediaUrl(item.menuItem.imageURL)} 
-                             alt={item.menuItem?.name || 'Item'}
-                             className="w-full h-full object-cover rounded-lg"
-                             crossOrigin="anonymous"
+                            <img 
+                              src={getMediaUrl(item.menuItem.imageURL, { width: 80, height: 80 })} 
+                              alt={item.menuItem?.name || 'Item'}
+                              className="w-full h-full object-cover rounded-lg"
                            />
                          ) : (
                            <span className="text-xl">🍽️</span>

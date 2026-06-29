@@ -126,7 +126,7 @@ const Gallery = () => {
                   <div className="aspect-square bg-gray-200">
                     {item.mediaURL && (
                       <img 
-                        src={getMediaUrl(item.mediaURL)}
+                        src={getMediaUrl(item.mediaURL, { width: 300, height: 300 })}
                         alt={item.title}
                         className="w-full h-full object-cover"
                       />
@@ -135,7 +135,7 @@ const Gallery = () => {
                 ) : (
                   <div className="aspect-square bg-gray-800 relative flex items-center justify-center">
                     {item.mediaURL ? (
-                      <VideoThumbnail src={getMediaUrl(item.mediaURL)} />
+                      <VideoThumbnail src={getMediaUrl(item.mediaURL, { width: 300, height: 300 })} />
                     ) : (
                       <div className="text-6xl">🎬</div>
                     )}
@@ -186,7 +186,7 @@ const Gallery = () => {
                   {selectedItem.mediaType === 'image' ? (
                     <div className="bg-gray-100 rounded-lg p-4">
                       <img 
-                        src={getMediaUrl(selectedItem.mediaURL)}
+                        src={getMediaUrl(selectedItem.mediaURL, { width: 800 })}
                         alt={selectedItem.title}
                         className="w-full max-h-96 object-contain mx-auto"
                       />
@@ -195,7 +195,7 @@ const Gallery = () => {
                     <div className="bg-gray-900 rounded-lg p-4 flex items-center justify-center min-h-64">
                       {selectedItem.mediaURL ? (
                         <video 
-                          src={getMediaUrl(selectedItem.mediaURL)}
+                          src={getMediaUrl(selectedItem.mediaURL, { width: 800 })}
                           alt={selectedItem.title}
                           className="w-full max-h-96 mx-auto"
                           controls

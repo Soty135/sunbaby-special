@@ -186,7 +186,7 @@ const AdminDashboard = () => {
       imageURL: item.imageURL || '',
       sizes: item.sizes || []
     });
-    setPreviewUrl(item.imageURL ? getMediaUrl(item.imageURL) : '');
+    setPreviewUrl(item.imageURL ? getMediaUrl(item.imageURL, { width: 128, height: 128 }) : '');
     setMenuImageFile(null);
     // Scroll to top so user can see the form - instant for better mobile support
     window.scrollTo(0, 0);
@@ -738,13 +738,13 @@ const AdminDashboard = () => {
               <div className="aspect-w-16 aspect-h-12 bg-gray-100 mb-4 flex items-center justify-center">
                 {item.mediaType === 'image' && item.mediaURL ? (
                   <img 
-                    src={getMediaUrl(item.mediaURL)} 
+                    src={getMediaUrl(item.mediaURL, { width: 200, height: 150 })} 
                     alt={item.title}
                     className="max-h-32 object-contain"
                   />
                 ) : item.mediaType === 'video' && item.mediaURL ? (
                   <video 
-                    src={getMediaUrl(item.mediaURL)}
+                    src={getMediaUrl(item.mediaURL, { width: 200, height: 150 })}
                     alt={item.title}
                     className="max-h-32 object-contain"
                   />

@@ -202,11 +202,10 @@ const Menu = () => {
                 <div className="relative h-32 overflow-hidden">
                   {item.imageURL ? (
                     <img 
-                      src={getMediaUrl(item.imageURL)}
+                      src={getMediaUrl(item.imageURL, { width: 400, height: 250 })}
                       alt={item.name}
                       className="w-full h-full object-cover rounded-t-lg"
                       loading="lazy"
-                      crossOrigin="anonymous"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gray-300 rounded-t-lg">
