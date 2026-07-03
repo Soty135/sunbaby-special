@@ -132,7 +132,7 @@ const AdminDashboard = () => {
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Failed to save menu item.',
+        text: 'Failed to save menu item: ' + (error.response?.data?.message || error.message),
       });
     } finally {
       setLoading(false);
