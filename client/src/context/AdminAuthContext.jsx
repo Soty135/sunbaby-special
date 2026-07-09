@@ -18,10 +18,12 @@ export const AdminAuthProvider = ({ children }) => {
           const response = await api.get('/api/auth/admin/verify');
           setUser(response.data.user);
           setIsAuthenticated(true);
-        } catch {
-          localStorage.removeItem('adminToken');
-          localStorage.removeItem('adminUser');
-          delete api.defaults.headers.common['Authorization'];
+        } catch (error) {
+          if (error.response?.status === 401) {
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminUser');
+            delete api.defaults.headers.common['Authorization'];
+          }
         }
       }
       setLoading(false);

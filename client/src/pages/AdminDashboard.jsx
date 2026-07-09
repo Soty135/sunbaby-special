@@ -5,7 +5,7 @@ import api, { getMediaUrl } from '../services/api';
 import Swal from 'sweetalert2';
 
 const AdminDashboard = () => {
-  const { user, logout } = useAdminAuth();
+  const { user, isAuthenticated, loading: authLoading, logout } = useAdminAuth();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('menu');
   const [menuItems, setMenuItems] = useState([]);
@@ -41,6 +41,12 @@ const AdminDashboard = () => {
     logout();
     navigate('/');
   };
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      navigate('/admin/login');
+    }
+  }, [authLoading, isAuthenticated, navigate]);
 
   useEffect(() => {
     // Clear any dummy cart data when admin accesses dashboard
@@ -779,6 +785,19 @@ const AdminDashboard = () => {
       </div>
     </div>
   );
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Verifying session...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) return null;
 
   return (
     <div className="min-h-screen bg-gray-100">
