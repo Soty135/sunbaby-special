@@ -104,7 +104,6 @@ const AdminDashboard = () => {
       }
       
       if (menuForm._id) {
-        formData.append('_id', menuForm._id);
         await api.put(`/api/menu/${menuForm._id}`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
@@ -184,6 +183,7 @@ const AdminDashboard = () => {
       price: item.price,
       category: item.category,
       imageURL: item.imageURL || '',
+      availability: item.availability,
       sizes: item.sizes || []
     });
     setPreviewUrl(item.imageURL ? getMediaUrl(item.imageURL, { width: 128, height: 128 }) : '');

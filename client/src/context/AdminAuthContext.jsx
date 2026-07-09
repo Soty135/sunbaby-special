@@ -9,15 +9,24 @@ export const AdminAuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('adminToken');
-    const userData = localStorage.getItem('adminUser');
-    if (token && userData) {
-      // Verify token and get user info
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      setUser(JSON.parse(userData));
-      setIsAuthenticated(true);
-    }
-    setLoading(false);
+    const verifyToken = async () => {
+      const token = localStorage.getItem('adminToken');
+      const userData = localStorage.getItem('adminUser');
+      if (token && userData) {
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        try {
+          const response = await api.get('/api/auth/admin/verify');
+          setUser(response.data.user);
+          setIsAuthenticated(true);
+        } catch {
+          localStorage.removeItem('adminToken');
+          localStorage.removeItem('adminUser');
+          delete api.defaults.headers.common['Authorization'];
+        }
+      }
+      setLoading(false);
+    };
+    verifyToken();
   }, []);
 
   const login = async (credentials) => {
